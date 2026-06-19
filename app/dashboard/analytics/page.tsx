@@ -42,9 +42,9 @@ export default function AnalyticsPage() {
     <div>
       <Topbar title="Analytics" subtitle="Platform insights and statistics" />
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* KPI row */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           {([
             { label: "Download Rate", value: data ? (data.downloads?.total > 0 ? Math.round((data.downloads?.completed / data.downloads?.total) * 100) + "%" : "0%") : "—", sub: "completion rate", icon: <Download size={18} />, color: "text-red-400 bg-red-500/10" },
             { label: "Avg Songs/Channel", value: data ? (data.channels?.total > 0 ? Math.round(data.songs?.total / data.channels?.total) : 0) : "—", sub: "per channel", icon: <Music2 size={18} />, color: "text-emerald-400 bg-emerald-500/10" },

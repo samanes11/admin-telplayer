@@ -105,7 +105,7 @@ export default function DefaultChannelsPage() {
         subtitle="Channels automatically added for every new user"
       />
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Add channel form */}
         <Card>
           <div className="p-5">

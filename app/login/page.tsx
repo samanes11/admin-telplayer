@@ -58,7 +58,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur-xl p-8 shadow-2xl">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
           <h2 className="text-lg font-semibold text-white mb-1">Sign in</h2>
           <p className="text-sm text-zinc-500 mb-6">Admin accounts only</p>
 

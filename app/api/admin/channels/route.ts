@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
   const limit  = Math.min(100, parseInt(searchParams.get("limit") || "15"));
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
+  const userId = searchParams.get("userId") || "";
   const skip   = (page - 1) * limit;
 
   /* ── build match stage ── */
@@ -28,6 +29,7 @@ export async function GET(req: NextRequest) {
     ];
   }
   if (status) matchStage.status = status;
+  if (userId) matchStage.userId = userId;
 
   /* ── single aggregate — no N+1 ── */
   const [result] = await db
@@ -35,7 +37,6 @@ export async function GET(req: NextRequest) {
     .aggregate([
       { $match: matchStage },
 
-      // total count before pagination
       {
         $facet: {
           meta: [{ $count: "total" }],
@@ -44,7 +45,6 @@ export async function GET(req: NextRequest) {
             { $skip: skip },
             { $limit: limit },
 
-            // convert userId string → ObjectId for $lookup
             {
               $addFields: {
                 _userObjId: {
@@ -58,7 +58,6 @@ export async function GET(req: NextRequest) {
               },
             },
 
-            // join owner info
             {
               $lookup: {
                 from: "users",
@@ -69,7 +68,6 @@ export async function GET(req: NextRequest) {
               },
             },
 
-            // count songs per channel
             {
               $lookup: {
                 from: "telegram_songs",
@@ -82,7 +80,6 @@ export async function GET(req: NextRequest) {
               },
             },
 
-            // flatten
             {
               $addFields: {
                 ownerEmail: { $arrayElemAt: ["$_owner.email", 0] },
@@ -91,7 +88,6 @@ export async function GET(req: NextRequest) {
               },
             },
 
-            // clean up temp fields
             { $project: { _userObjId: 0, _channelIdStr: 0, _owner: 0, _songCount: 0 } },
           ],
         },
@@ -126,7 +122,6 @@ export async function DELETE(req: NextRequest) {
   }
 
   await db.collection("telegram_channels").deleteOne({ _id: objId });
-  // songs store channelDbId as string
   await db.collection("telegram_songs").deleteMany({ channelDbId: id });
 
   return NextResponse.json({ success: true });

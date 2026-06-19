@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Topbar from "@/components/dashboard/Topbar";
+import UserDetailModal from "@/components/dashboard/UserDetailModal";
 import {
   Button, Badge, Card, Input, Select,
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui";
 import {
   Search, MoreHorizontal, UserX, Edit3, Shield,
-  ShieldCheck, RefreshCw, Users, Radio, Download,
+  ShieldCheck, RefreshCw, Radio, Download,
   ChevronLeft, ChevronRight, Eye, EyeOff, Trash2,
 } from "lucide-react";
 import { timeAgo, formatDate } from "@/lib/utils";
@@ -42,6 +43,9 @@ export default function UsersPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<User | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // ── کاربر انتخاب‌شده برای نمایش چنل‌ها/آهنگ‌ها ──
+  const [viewUser, setViewUser] = useState<User | null>(null);
+
   const load = useCallback(async (p = 1, q = search) => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(p), limit: "15", search: q });
@@ -55,7 +59,6 @@ export default function UsersPage() {
 
   useEffect(() => { load(1, ""); }, []);
 
-  // Debounce search
   useEffect(() => {
     const t = setTimeout(() => { setPage(1); load(1, search); }, 400);
     return () => clearTimeout(t);
@@ -140,7 +143,11 @@ export default function UsersPage() {
                   </TableRow>
                 ))
               ) : users.map(user => (
-                <TableRow key={user._id}>
+                <TableRow
+                  key={user._id}
+                  className="cursor-pointer"
+                  onClick={() => setViewUser(user)}
+                >
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar name={user.name || user.email} size="sm" />
@@ -156,7 +163,7 @@ export default function UsersPage() {
                       {user.role || "user"}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-2">
                       <Toggle checked={user.isActive} onChange={() => toggleActive(user)} />
                       <span className={`text-xs font-mono ${user.isActive ? "text-emerald-400" : "text-zinc-600"}`}>
@@ -182,7 +189,7 @@ export default function UsersPage() {
                   <TableCell>
                     <span className="text-xs text-zinc-500 font-mono">{user.lastLogin ? timeAgo(user.lastLogin) : "Never"}</span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -223,6 +230,9 @@ export default function UsersPage() {
           </div>
         </Card>
       </div>
+
+      {/* User channels/songs modal */}
+      <UserDetailModal user={viewUser} onClose={() => setViewUser(null)} />
 
       {/* Edit Dialog */}
       <Dialog open={!!editUser} onOpenChange={o => !o && setEditUser(null)}>
