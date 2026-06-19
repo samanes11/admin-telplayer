@@ -16,6 +16,7 @@ const nav = [
   { href: "/dashboard/channels", label: "Channels", icon: Radio },
   { href: "/dashboard/songs", label: "Songs", icon: Music2 },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard/default-channels", label: "Default Channels", icon: Radio }
 ];
 
 export default function Sidebar() {
