@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Radio, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Users, BarChart3, LucideBoxes } from "lucide-react";
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/users", label: "Users", icon: Users },
-  { href: "/dashboard/default-channels", label: "Channels", icon: Radio },
+  { href: "/dashboard/default-channels", label: "Tools", icon: LucideBoxes },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
