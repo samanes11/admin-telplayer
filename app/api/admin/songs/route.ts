@@ -29,13 +29,13 @@ export async function GET(req: NextRequest) {
   if (channelDbId) query.channelDbId = channelDbId;
 
   const [songs, total] = await Promise.all([
-    db.collection("telegram_songs")
+    db.collection("songs")
       .find(query, { projection: { thumbnail: 0 } })
       .sort({ messageDate: -1 })
       .skip(skip)
       .limit(limit)
       .toArray(),
-    db.collection("telegram_songs").countDocuments(query),
+    db.collection("songs").countDocuments(query),
   ]);
 
   return NextResponse.json({
@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
-  await db.collection("telegram_songs").deleteOne({
+  await db.collection("songs").deleteOne({
     _id: new mongoose.Types.ObjectId(id),
   });
 

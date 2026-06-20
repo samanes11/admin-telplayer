@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB, getDb } from "@/lib/db";
 
+const BACKEND = "https://musicbackend-production-7d94.up.railway.app/api";
+const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
+
 export async function POST() {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== "admin")
@@ -28,30 +31,67 @@ export async function POST() {
     .toArray();
 
   let added = 0;
+
   for (const user of users) {
     const userId = user._id.toString();
+
     const existingChannels = await db
-      .collection("telegram_channels")
+      .collection("user_channels")
       .find({ userId })
       .project({ channelUsername: 1 })
       .toArray();
-    const existingUsernames = new Set(existingChannels.map((c: any) => c.channelUsername));
+
+    const existingUsernames = new Set(
+      existingChannels.map((c: any) => c.channelUsername),
+    );
 
     for (const dc of defaults) {
       if (existingUsernames.has(dc.channelUsername)) continue;
-      await db.collection("telegram_channels").insertOne({
+
+      // چک کن channel shared وجود داره یا نه
+      let channel = await db.collection("channels").findOne({
+        channelUsername: dc.channelUsername,
+      });
+
+      let needsSync = false;
+
+      if (!channel) {
+        await db.collection("channels").insertOne({
+          channelUsername: dc.channelUsername,
+          channelName: dc.channelName,
+          photoUrl: null,
+          status: "pending",
+          songsCount: 0,
+          lastSync: null,
+        });
+        needsSync = true;
+      }
+
+      await db.collection("user_channels").insertOne({
         userId,
         channelUsername: dc.channelUsername,
-        channelName: dc.channelName,
-        photoUrl: null,
-        status: "pending",
-        songsCount: 0,
         addedAt: new Date(),
         isDefault: true,
       });
+
       added++;
+
+      // فقط یه بار sync کن نه برای هر یوزر
+      if (needsSync) {
+        fetch(`${BACKEND}/admin/channels/${dc.channelUsername}/sync`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-key": ADMIN_SECRET,
+          },
+        }).catch(console.error);
+      }
     }
   }
 
-  return NextResponse.json({ success: true, added, usersProcessed: users.length });
+  return NextResponse.json({
+    success: true,
+    added,
+    usersProcessed: users.length,
+  });
 }

@@ -22,23 +22,23 @@ export async function GET() {
   ] = await Promise.all([
     db.collection("users").countDocuments(),
     db.collection("users").countDocuments({ isActive: true }),
-    db.collection("telegram_channels").countDocuments(),
-    db.collection("telegram_channels").countDocuments({ status: "active" }),
-    db.collection("telegram_songs").countDocuments(),
+    db.collection("channels").countDocuments(),
+    db.collection("channels").countDocuments({ status: "active" }),
+    db.collection("songs").countDocuments(),
     db.collection("user_downloads").countDocuments(),
     db.collection("user_downloads").countDocuments({ status: "completed" }),
     db.collection("users")
       .find({}, { projection: { password: 0, refreshToken: 0 } })
       .sort({ createdAt: -1 }).limit(5).toArray(),
-    db.collection("telegram_songs")
+    db.collection("songs")
       .find({})
       .sort({ messageDate: -1 }).limit(5).toArray(),
   ]);
 
   // Songs per channel stats for chart
-  const channelStats = await db.collection("telegram_channels").aggregate([
+  const channelStats = await db.collection("channels").aggregate([
     { $lookup: {
-      from: "telegram_songs",
+      from: "songs",
       localField: "_id",
       foreignField: "channelDbId",
       as: "songs"
