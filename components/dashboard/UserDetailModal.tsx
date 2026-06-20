@@ -81,7 +81,7 @@ export default function UserDetailModal({
 
   return (
     <>
-      {/* ── Channels modal ── */}
+      {/*  Channels modal */}
       <Dialog open={!!user} onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
           <DialogHeader>
@@ -142,7 +142,7 @@ export default function UserDetailModal({
         </DialogContent>
       </Dialog>
 
-      {/* ── Songs modal (nested) ── */}
+      {/*  Songs modal (nested) */}
       <Dialog open={!!selectedChannel} onOpenChange={(o) => !o && setSelectedChannel(null)}>
         <DialogContent className="max-w-xl max-h-[80vh] flex flex-col">
           <DialogHeader>
