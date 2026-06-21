@@ -27,6 +27,7 @@ import {
   Disc3,
   MessageSquare,
   Mail,
+  DollarSign,
 } from "lucide-react";
 import { formatDate, timeAgo, formatDuration } from "@/lib/utils";
 import {
@@ -75,7 +76,7 @@ export default function DashboardPage() {
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Stat Cards */}
         {/* Stat Cards */}
-        <div className="grid grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-32 rounded-2xl" />
@@ -90,17 +91,10 @@ export default function DashboardPage() {
                 color="blue"
               />
               <StatCard
-                title="Channels"
-                value={data?.channels?.total ?? 0}
-                sub={`${data?.channels?.active ?? 0} active`}
-                icon={<Radio size={20} />}
-                color="purple"
-              />
-              <StatCard
-                title="Total Songs"
-                value={data?.songs?.total ?? 0}
-                sub="across all channels"
-                icon={<Music2 size={20} />}
+                title="Total Revenue"
+                value={`$${(data?.revenue?.total ?? 0).toLocaleString()}`}
+                sub={`${data?.revenue?.totalCount ?? 0} purchases · $${(data?.revenue?.todayTotal ?? 0).toLocaleString()} today`}
+                icon={<DollarSign size={20} />}
                 color="green"
               />
               <StatCard
@@ -369,7 +363,9 @@ export default function DashboardPage() {
             <DialogTitle className="flex items-center gap-2">
               <MessageSquare size={18} className="text-amber-400" />
               Developer Contact Messages
-              <Badge variant="warning" className="ml-1">{messages.length}</Badge>
+              <Badge variant="warning" className="ml-1">
+                {messages.length}
+              </Badge>
             </DialogTitle>
           </DialogHeader>
 

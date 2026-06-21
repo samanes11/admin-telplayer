@@ -82,6 +82,16 @@ export async function GET(req: NextRequest) {
                 },
               },
             },
+            {
+              $addFields: {
+                isPremium: {
+                  $and: [
+                    { $ne: ["$subscriptionExpiresAt", null] },
+                    { $gt: ["$subscriptionExpiresAt", "$$NOW"] },
+                  ],
+                },
+              },
+            },
 
             { $project: { _userIdStr: 0, _channels: 0, _downloads: 0 } },
           ],

@@ -1,14 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Skeleton, Badge, Avatar } from "@/components/ui";
-import { Radio, Music2, ChevronRight, ArrowLeft, Clock } from "lucide-react";
-import { formatDuration } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Skeleton,
+  Badge,
+  Avatar,
+} from "@/components/ui";
+import {
+  Radio,
+  Music2,
+  ChevronRight,
+  ArrowLeft,
+  Clock,
+  Gem,
+} from "lucide-react";
+import { formatDuration, formatDate } from "@/lib/utils";
 
 interface AdminUser {
   _id: string;
   name?: string;
   email: string;
+  subscriptionPlan?: string | null;
+  subscriptionExpiresAt?: string | null;
 }
 
 interface AdminChannel {
@@ -28,7 +45,10 @@ interface AdminSong {
   fileSize: number;
 }
 
-const statusConfig: Record<string, { label: string; badge: "success" | "error" | "warning" | "outline" }> = {
+const statusConfig: Record<
+  string,
+  { label: string; badge: "success" | "error" | "warning" | "outline" }
+> = {
   active: { label: "Active", badge: "success" },
   error: { label: "Error", badge: "error" },
   syncing: { label: "Syncing…", badge: "warning" },
@@ -51,7 +71,9 @@ export default function UserDetailModal({
   const [channels, setChannels] = useState<AdminChannel[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(false);
 
-  const [selectedChannel, setSelectedChannel] = useState<AdminChannel | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<AdminChannel | null>(
+    null,
+  );
   const [songs, setSongs] = useState<AdminSong[]>([]);
   const [loadingSongs, setLoadingSongs] = useState(false);
 
@@ -89,7 +111,21 @@ export default function UserDetailModal({
               <Avatar name={user?.name || user?.email || "?"} />
               <div>
                 <p>{user?.name || "Unnamed"}</p>
-                <p className="text-xs text-zinc-500 font-normal font-mono">{user?.email}</p>
+                <p className="text-xs text-zinc-500 font-normal font-mono">
+                  {user?.email}
+                </p>
+                {user?.subscriptionExpiresAt &&
+                new Date(user.subscriptionExpiresAt) > new Date() ? (
+                  <Badge variant="success" className="mt-1.5">
+                    <Gem size={10} />
+                    {(user.subscriptionPlan || "premium").toUpperCase()} · until{" "}
+                    {formatDate(user.subscriptionExpiresAt)}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="mt-1.5">
+                    No active subscription
+                  </Badge>
+                )}
               </div>
             </DialogTitle>
           </DialogHeader>
@@ -109,7 +145,8 @@ export default function UserDetailModal({
             ) : (
               <div className="space-y-2 pb-2">
                 {channels.map((ch) => {
-                  const status = statusConfig[ch.status] || statusConfig.pending;
+                  const status =
+                    statusConfig[ch.status] || statusConfig.pending;
                   return (
                     <button
                       key={ch._id}
@@ -120,8 +157,12 @@ export default function UserDetailModal({
                         <Radio size={16} className="text-purple-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{ch.channelName}</p>
-                        <p className="text-xs text-zinc-500 font-mono truncate">@{ch.channelUsername}</p>
+                        <p className="text-sm font-medium text-white truncate">
+                          {ch.channelName}
+                        </p>
+                        <p className="text-xs text-zinc-500 font-mono truncate">
+                          @{ch.channelUsername}
+                        </p>
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <Badge variant={status.badge} className="text-[10px]">
@@ -129,10 +170,17 @@ export default function UserDetailModal({
                         </Badge>
                         <span className="text-[10px] text-zinc-600 font-mono flex items-center gap-1">
                           <Music2 size={9} />
-                          {(ch.songCount ?? ch.songsCount ?? 0).toLocaleString()}
+                          {(
+                            ch.songCount ??
+                            ch.songsCount ??
+                            0
+                          ).toLocaleString()}
                         </span>
                       </div>
-                      <ChevronRight size={16} className="text-zinc-600 shrink-0" />
+                      <ChevronRight
+                        size={16}
+                        className="text-zinc-600 shrink-0"
+                      />
                     </button>
                   );
                 })}
@@ -143,7 +191,10 @@ export default function UserDetailModal({
       </Dialog>
 
       {/*  Songs modal (nested) */}
-      <Dialog open={!!selectedChannel} onOpenChange={(o) => !o && setSelectedChannel(null)}>
+      <Dialog
+        open={!!selectedChannel}
+        onOpenChange={(o) => !o && setSelectedChannel(null)}
+      >
         <DialogContent className="max-w-xl max-h-[80vh] flex flex-col">
           <DialogHeader>
             <div className="flex items-center gap-2">
@@ -180,7 +231,9 @@ export default function UserDetailModal({
                       <Music2 size={14} className="text-red-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{song.title}</p>
+                      <p className="text-sm font-medium text-white truncate">
+                        {song.title}
+                      </p>
                       <p className="text-xs text-zinc-500 truncate">
                         {song.artist === "Unknown" ? "—" : song.artist}
                       </p>
@@ -190,7 +243,9 @@ export default function UserDetailModal({
                         <Clock size={10} />
                         {song.duration ? formatDuration(song.duration) : "—"}
                       </p>
-                      <p className="text-[10px] text-zinc-600 font-mono mt-0.5">{formatFileSize(song.fileSize)}</p>
+                      <p className="text-[10px] text-zinc-600 font-mono mt-0.5">
+                        {formatFileSize(song.fileSize)}
+                      </p>
                     </div>
                   </div>
                 ))}
