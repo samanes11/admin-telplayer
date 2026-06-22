@@ -84,12 +84,11 @@ export default function AnalyticsPage() {
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* KPI row */}
-        <div className="grid grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           {([
             { label: "Purchases Today", value: data ? (data.revenue?.todayCount ?? 0) : "—", sub: `$${(data?.revenue?.todayTotal ?? 0).toLocaleString()} revenue`, icon: <CreditCard size={18} />, color: "text-amber-400 bg-amber-500/10" },
             { label: "Download Rate", value: data ? (data.downloads?.total > 0 ? Math.round((data.downloads?.completed / data.downloads?.total) * 100) + "%" : "0%") : "—", sub: "completion rate", icon: <Download size={18} />, color: "text-red-400 bg-red-500/10" },
-            { label: "Avg Songs/Channel", value: data ? (data.channels?.total > 0 ? Math.round(data.songs?.total / data.channels?.total) : 0) : "—", sub: "per channel", icon: <Music2 size={18} />, color: "text-emerald-400 bg-emerald-500/10" },
-            { label: "Channels/User", value: data ? (data.users?.total > 0 ? (data.channels?.total / data.users?.total).toFixed(1) : "0") : "—", sub: "average", icon: <Radio size={18} />, color: "text-purple-400 bg-purple-500/10" },
+            { label: "Total Songs", value: data ? (data.songs?.total > 0 ? data.songs?.total : 0) : "—", sub: "Songs", icon: <Music2 size={18} />, color: "text-emerald-400 bg-emerald-500/10" },
             { label: "Active Rate", value: data ? (data.users?.total > 0 ? Math.round((data.users?.active / data.users?.total) * 100) + "%" : "0%") : "—", sub: "of users active", icon: <Users size={18} />, color: "text-blue-400 bg-blue-500/10" },
           ] as const).map((kpi, i) => (
             <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
