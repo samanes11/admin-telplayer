@@ -1431,8 +1431,8 @@ export default function DefaultChannelsPage() {
   return (
     <div>
       <Topbar
-        title="Default Channels"
-        subtitle="Auto-enroll channels and forward music between channels"
+        title="Tools"
+        subtitle="Your tools for make better app"
       />
 
       <div className="p-4 sm:p-6 space-y-5">

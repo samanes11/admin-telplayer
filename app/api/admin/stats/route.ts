@@ -19,8 +19,6 @@ export async function GET() {
     totalChannels,
     activeChannels,
     totalSongs,
-    totalDownloads,
-    completedDownloads,
     recentUsers,
     recentSongs,
   ] = await Promise.all([
@@ -29,8 +27,6 @@ export async function GET() {
     db.collection("channels").countDocuments(),
     db.collection("channels").countDocuments({ status: "active" }),
     db.collection("songs").countDocuments(),
-    db.collection("user_downloads").countDocuments(),
-    db.collection("user_downloads").countDocuments({ status: "completed" }),
     db
       .collection("users")
       .find({}, { projection: { password: 0, refreshToken: 0 } })
@@ -141,7 +137,6 @@ export async function GET() {
     users: { total: totalUsers, active: activeUsers },
     channels: { total: totalChannels, active: activeChannels },
     songs: { total: totalSongs },
-    downloads: { total: totalDownloads, completed: completedDownloads },
     recentUsers,
     recentSongs,
     channelStats,

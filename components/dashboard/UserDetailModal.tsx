@@ -95,7 +95,7 @@ export default function UserDetailModal({
       return;
     }
     setLoadingSongs(true);
-    fetch(`/api/admin/songs?channelDbId=${selectedChannel._id}&limit=50`)
+    fetch(`/api/admin/songs?user_channels=${selectedChannel._id}&limit=100`)
       .then((r) => r.json())
       .then((d) => setSongs(d.data || []))
       .finally(() => setLoadingSongs(false));
