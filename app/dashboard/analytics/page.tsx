@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
               {
                 label: "Purchases Today",
                 value: data ? (data.revenue?.todayCount ?? 0) : "—",
-                sub: `$${(data?.revenue?.todayTotal ?? 0).toLocaleString()} revenue`,
+                sub: `${Number(String(data?.revenue?.total ?? 0).replace(/0$/, '')).toLocaleString()} Toman`,
                 icon: <CreditCard size={18} />,
                 color: "text-amber-400 bg-amber-500/10",
               },
@@ -413,7 +413,7 @@ export default function AnalyticsPage() {
                     },
                     {
                       label: "Total Revenue",
-                      value: `$${(data?.revenue?.total ?? 0).toLocaleString()}`,
+                      value: `${Number(String(data?.revenue?.total ?? 0).replace(/0$/, '')).toLocaleString()}`,
                       badge: "success" as const,
                     },
                   ].map((row, i) => (
@@ -532,7 +532,7 @@ export default function AnalyticsPage() {
                         </TableCell>
                         <TableCell>
                           <span className="text-sm font-mono font-semibold text-white">
-                            ${tx.amount.toLocaleString()}
+                            {`${Number(String(tx.amount ?? 0).replace(/0$/, '')).toLocaleString()}`}
                           </span>
                         </TableCell>
                         <TableCell>
