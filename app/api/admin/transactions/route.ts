@@ -15,10 +15,12 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
   const limit = Math.min(100, parseInt(searchParams.get("limit") || "10"));
   const status = searchParams.get("status") || "";
+  const userId = searchParams.get("userId") || "";
   const skip = (page - 1) * limit;
 
   const matchStage: Record<string, any> = {};
   if (status) matchStage.status = status;
+  if (userId) matchStage.userId = userId; 
 
   const [result] = await db
     .collection("subscription_orders")

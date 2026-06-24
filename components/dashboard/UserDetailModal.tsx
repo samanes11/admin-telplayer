@@ -76,6 +76,20 @@ export default function UserDetailModal({
   );
   const [songs, setSongs] = useState<AdminSong[]>([]);
   const [loadingSongs, setLoadingSongs] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setOrders([]);
+      return;
+    }
+    setLoadingOrders(true);
+    fetch(`/api/admin/transactions?userId=${user._id}&limit=50`)
+      .then((r) => r.json())
+      .then((d) => setOrders(d.data || []))
+      .finally(() => setLoadingOrders(false));
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -186,11 +200,50 @@ export default function UserDetailModal({
                 })}
               </div>
             )}
+            <div className="mt-4">
+              <p className="text-xs font-mono text-zinc-500 mb-2 uppercase tracking-wider">
+                Subscription History
+              </p>
+              {loadingOrders ? (
+                <Skeleton className="h-20 rounded-xl" />
+              ) : orders.length === 0 ? (
+                <p className="text-xs text-zinc-600">No purchases yet</p>
+              ) : (
+                <div className="space-y-1.5">
+                  {orders.map((o) => (
+                    <div
+                      key={o.orderId}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg bg-zinc-900/60 border border-zinc-800"
+                    >
+                      <div>
+                        <p className="text-sm text-white">
+                          {o.planTitle || o.planId}
+                        </p>
+                        <p className="text-[10px] text-zinc-600 font-mono">
+                          {formatDate(o.createdAt)}
+                        </p>
+                      </div>
+                      <Badge
+                        variant={
+                          o.status === "paid"
+                            ? "success"
+                            : o.status === "failed"
+                              ? "error"
+                              : "warning"
+                        }
+                      >
+                        {o.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/*  Songs modal (nested) */}
+      {/*  Songs modal */}
       <Dialog
         open={!!selectedChannel}
         onOpenChange={(o) => !o && setSelectedChannel(null)}
