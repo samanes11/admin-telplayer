@@ -25,6 +25,7 @@ import {
   Clock,
   Activity,
   Disc3,
+  BotMessageSquare,
   MessageSquare,
   Mail,
   DollarSign,
@@ -91,16 +92,16 @@ export default function DashboardPage() {
               />
               <StatCard
                 title="Total Revenue"
-                value={`${Number(String(data?.revenue?.total ?? 0).replace(/0$/, '')).toLocaleString()}`}
-                sub={`${data?.revenue?.totalCount ?? 0} purchases · ${Number(String(data?.revenue?.total ?? 0).replace(/0$/, '')).toLocaleString()} today`}
+                value={`${Number(String(data?.revenue?.total ?? 0).replace(/0$/, "")).toLocaleString()}`}
+                sub={`${data?.revenue?.totalCount ?? 0} purchases · ${Number(String(data?.revenue?.total ?? 0).replace(/0$/, "")).toLocaleString()} today`}
                 icon={<DollarSign size={20} />}
                 color="green"
               />
               <StatCard
-                title="Downloads"
-                value={data?.downloads?.total ?? 0}
-                sub={`${data?.downloads?.completed ?? 0} completed`}
-                icon={<Download size={20} />}
+                title="Bot Users"
+                value={data?.bot?.connectedUsers ?? 0}
+                sub="connected to Telegram bot"
+                icon={<BotMessageSquare size={20} />}
                 color="red"
               />
 

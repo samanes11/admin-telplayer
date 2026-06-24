@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB, getDb } from "@/lib/db";
 
-const BACKEND = "https://musicbackend-production-7d94.up.railway.app/api";
+const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";
 
 export async function POST() {

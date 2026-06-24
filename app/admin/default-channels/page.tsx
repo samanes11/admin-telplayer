@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const API_BASE = "https://musicbackend-production-7d94.up.railway.app/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 type DefaultChannel = {
   _id: string;

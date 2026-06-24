@@ -44,6 +44,8 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
+  MessageSquare,
+  BotMessageSquare,
 } from "lucide-react";
 import { formatDate, timeAgo } from "@/lib/utils";
 
@@ -142,23 +144,18 @@ export default function AnalyticsPage() {
               {
                 label: "Purchases Today",
                 value: data ? (data.revenue?.todayCount ?? 0) : "—",
-                sub: `${Number(String(data?.revenue?.total ?? 0).replace(/0$/, '')).toLocaleString()} Toman`,
+                sub: `${Number(String(data?.revenue?.total ?? 0).replace(/0$/, "")).toLocaleString()} Toman`,
                 icon: <CreditCard size={18} />,
                 color: "text-amber-400 bg-amber-500/10",
               },
               {
-                label: "Download Rate",
+                label: "Bot Users",
                 value: data
-                  ? data.downloads?.total > 0
-                    ? Math.round(
-                        (data.downloads?.completed / data.downloads?.total) *
-                          100,
-                      ) + "%"
-                    : "0%"
+                  ? `${data?.users?.total ? Math.round(((data.bot?.connectedUsers ?? 0) / data.users.total) * 100) : 0}%`
                   : "—",
-                sub: "completion rate",
-                icon: <Download size={18} />,
-                color: "text-red-400 bg-red-500/10",
+                sub: `${data?.bot?.connectedUsers ?? 0} of ${data?.users?.total ?? 0} users`,
+                icon: <BotMessageSquare size={18} />,
+                color: "text-purple-400 bg-purple-500/10",
               },
               {
                 label: "Total Songs",
@@ -413,7 +410,7 @@ export default function AnalyticsPage() {
                     },
                     {
                       label: "Total Revenue",
-                      value: `${Number(String(data?.revenue?.total ?? 0).replace(/0$/, '')).toLocaleString()}`,
+                      value: `${Number(String(data?.revenue?.total ?? 0).replace(/0$/, "")).toLocaleString()}`,
                       badge: "success" as const,
                     },
                   ].map((row, i) => (
@@ -532,7 +529,7 @@ export default function AnalyticsPage() {
                         </TableCell>
                         <TableCell>
                           <span className="text-sm font-mono font-semibold text-white">
-                            {`${Number(String(tx.amount ?? 0).replace(/0$/, '')).toLocaleString()}`}
+                            {`${Number(String(tx.amount ?? 0).replace(/0$/, "")).toLocaleString()}`}
                           </span>
                         </TableCell>
                         <TableCell>

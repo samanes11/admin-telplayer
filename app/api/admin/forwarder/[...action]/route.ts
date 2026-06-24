@@ -1,17 +1,9 @@
-/**
- * app/api/admin/forwarder/[...action]/route.ts
- *
- * Proxy به backend Express:
- *   POST   /api/admin/forwarder/start
- *   GET    /api/admin/forwarder/status/:jobId
- *   POST   /api/admin/forwarder/cancel/:jobId
- *   GET    /api/admin/forwarder/jobs
- */
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const BACKEND = "https://musicbackend-production-7d94.up.railway.app/api";
+const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 // همون ADMIN_SECRET که در backend تنظیم شده
 const ADMIN_SECRET = process.env.ADMIN_SECRET || "";

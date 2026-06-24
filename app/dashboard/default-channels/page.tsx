@@ -49,6 +49,8 @@ import {
   Ban,
   Gem,
   Edit3,
+  Send,
+  Bell,
 } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
 
@@ -83,7 +85,7 @@ interface ForwarderJob {
 // Tab type
 // ─────────────────────────────────────────────────────────────
 
-type Tab = "channels" | "forwarder" | "plans";
+type Tab = "channels" | "forwarder" | "plans" | "broadcast";
 
 // ─────────────────────────────────────────────────────────────
 // Forwarder Panel
@@ -1425,15 +1427,94 @@ function DefaultChannelsPanel() {
 // Main Page
 // ─────────────────────────────────────────────────────────────
 
+function BroadcastPanel() {
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<{ sent: number; failed: number } | null>(
+    null,
+  );
+  const [error, setError] = useState("");
+
+  async function send() {
+    if (!message.trim()) return;
+    setSending(true);
+    setError("");
+    setResult(null);
+    try {
+      const res = await fetch("/api/admin/bot-broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setResult(data.data);
+      setMessage("");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <Card>
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="p-2 rounded-xl bg-emerald-500/10">
+              <Bell size={16} className="text-emerald-400" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-white">
+                Broadcast Message
+              </h2>
+              <p className="text-xs text-zinc-500">
+                Send a notification to all users who started the bot
+              </p>
+            </div>
+          </div>
+
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Write your message here... (Markdown supported)"
+            rows={6}
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 resize-none"
+          />
+
+          <p className="text-xs text-zinc-600 mt-2 mb-4">
+            Supports Telegram Markdown: *bold*, _italic_, `code`
+          </p>
+
+          {error && (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-red-950/30 border border-red-900/50 text-xs text-red-400">
+              {error}
+            </div>
+          )}
+
+          {result && (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-emerald-950/30 border border-emerald-900/50 text-xs text-emerald-400">
+              ✓ Sent: {result.sent} · Failed: {result.failed}
+            </div>
+          )}
+
+          <Button onClick={send} loading={sending} disabled={!message.trim()}>
+            <Send size={14} />
+            Send to All Bot Users
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function DefaultChannelsPage() {
   const [tab, setTab] = useState<Tab>("channels");
 
   return (
     <div>
-      <Topbar
-        title="Tools"
-        subtitle="Your tools for make better app"
-      />
+      <Topbar title="Tools" subtitle="Your tools for make better app" />
 
       <div className="p-4 sm:p-6 space-y-5">
         {/* Tab switcher */}
@@ -1453,6 +1534,11 @@ export default function DefaultChannelsPage() {
               id: "plans" as Tab,
               label: "Subscription Plans",
               icon: <Gem size={14} />,
+            },
+            {
+              id: "broadcast" as Tab,
+              label: "Broadcast",
+              icon: <Bell size={14} />,
             },
           ].map((t) => (
             <button
@@ -1475,8 +1561,10 @@ export default function DefaultChannelsPage() {
           <DefaultChannelsPanel />
         ) : tab === "forwarder" ? (
           <ForwarderPanel />
-        ) : (
+        ) : tab === "plans" ? (
           <PlansPanel />
+        ) : (
+          <BroadcastPanel />
         )}
       </div>
     </div>
