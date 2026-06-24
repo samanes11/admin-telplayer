@@ -116,8 +116,8 @@ export default function ChannelsPage() {
                 <TableHead>Owner</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Songs</TableHead>
-                <TableHead>Added</TableHead>
-                <TableHead>Last Sync</TableHead>
+                <TableHead className="hidden lg:table-cell">Added</TableHead>
+                <TableHead className="hidden md:table-cell">Last Sync</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -174,10 +174,10 @@ export default function ChannelsPage() {
                         {(ch.songCount ?? ch.songsCount ?? 0).toLocaleString()}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <span className="text-xs text-zinc-500 font-mono">{ch.addedAt ? formatDate(ch.addedAt) : "—"}</span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <span className="text-xs text-zinc-500 font-mono">{ch.lastSync ? timeAgo(ch.lastSync) : "Never"}</span>
                     </TableCell>
                     <TableCell>

@@ -3,7 +3,11 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== "admin") {
     redirect("/login");
@@ -12,9 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+      <main className="flex-1 overflow-y-auto pb-24 sm:pb-28">{children}</main>
     </div>
   );
 }

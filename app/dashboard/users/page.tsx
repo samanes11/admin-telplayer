@@ -192,145 +192,142 @@ export default function UsersPage() {
 
         {/* Table */}
         <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Channels</TableHead>
-                <TableHead>Downloads</TableHead>
-                <TableHead>Subscription</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading
-                ? Array.from({ length: 9 }).map((_, i) => (
-                    <TableRow key={i}>
-                      {Array.from({ length: 9 }).map((_, j) => (
-                        <TableCell key={j}>
-                          <Skeleton className="h-5 w-full" />
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Channels</TableHead>
+                  <TableHead>Subscription</TableHead>
+                  <TableHead className="hidden lg:table-cell">Joined</TableHead>
+                  <TableHead className="hidden lg:table-cell">Last Login</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading
+                  ? Array.from({ length: 9 }).map((_, i) => (
+                      <TableRow key={i}>
+                        {Array.from({ length: 9 }).map((_, j) => (
+                          <TableCell key={j}>
+                            <Skeleton className="h-5 w-full" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  : users.map((user) => (
+                      <TableRow
+                        key={user._id}
+                        className="cursor-pointer"
+                        onClick={() => setViewUser(user)}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar name={user.name || user.email} size="sm" />
+                            <div>
+                              <p className="font-medium text-white text-sm">
+                                {user.name || "—"}
+                              </p>
+                              <p className="text-xs text-zinc-500 font-mono">
+                                {user.email}
+                              </p>
+                            </div>
+                          </div>
                         </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                : users.map((user) => (
-                    <TableRow
-                      key={user._id}
-                      className="cursor-pointer"
-                      onClick={() => setViewUser(user)}
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar name={user.name || user.email} size="sm" />
-                          <div>
-                            <p className="font-medium text-white text-sm">
-                              {user.name || "—"}
-                            </p>
-                            <p className="text-xs text-zinc-500 font-mono">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={user.role === "admin" ? "error" : "outline"}
-                        >
-                          {user.role === "admin" ? (
-                            <ShieldCheck size={10} />
-                          ) : (
-                            <Shield size={10} />
-                          )}
-                          {user.role || "user"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-2">
-                          <Toggle
-                            checked={user.isActive}
-                            onChange={() => toggleActive(user)}
-                          />
-                          <span
-                            className={`text-xs font-mono ${user.isActive ? "text-emerald-400" : "text-zinc-600"}`}
+                        <TableCell>
+                          <Badge
+                            variant={
+                              user.role === "admin" ? "error" : "outline"
+                            }
                           >
-                            {user.isActive ? "Active" : "Inactive"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-xs">
-                          <Radio size={12} className="text-purple-400" />
-                          {user.channelCount}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-xs">
-                          <Download size={12} className="text-blue-400" />
-                          {user.downloadCount}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {user.subscriptionExpiresAt &&
-                        new Date(user.subscriptionExpiresAt) > new Date() ? (
-                          <div>
-                            <Badge variant="success">
-                              <Gem size={10} />
-                              {user.subscriptionPlan?.toUpperCase() ||
-                                "PREMIUM"}
-                            </Badge>
-                            <p className="text-[10px] text-zinc-600 font-mono mt-1">
-                              until {formatDate(user.subscriptionExpiresAt)}
-                            </p>
+                            {user.role === "admin" ? (
+                              <ShieldCheck size={10} />
+                            ) : (
+                              <Shield size={10} />
+                            )}
+                            {user.role || "user"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-2">
+                            <Toggle
+                              checked={user.isActive}
+                              onChange={() => toggleActive(user)}
+                            />
+                            <span
+                              className={`text-xs font-mono ${user.isActive ? "text-emerald-400" : "text-zinc-600"}`}
+                            >
+                              {user.isActive ? "Active" : "Inactive"}
+                            </span>
                           </div>
-                        ) : (
-                          <Badge variant="outline">Free</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs text-zinc-500 font-mono">
-                          {user.createdAt ? formatDate(user.createdAt) : "—"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs text-zinc-500 font-mono">
-                          {user.lastLogin ? timeAgo(user.lastLogin) : "Never"}
-                        </span>
-                      </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEdit(user)}>
-                              <Edit3 size={14} /> Edit User
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => toggleActive(user)}
-                            >
-                              <UserX size={14} />{" "}
-                              {user.isActive ? "Deactivate" : "Activate"}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              destructive
-                              onClick={() => setDeleteConfirm(user)}
-                            >
-                              <Trash2 size={14} /> Delete User
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-xs">
+                            <Radio size={12} className="text-purple-400" />
+                            {user.channelCount}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {user.subscriptionExpiresAt &&
+                          new Date(user.subscriptionExpiresAt) > new Date() ? (
+                            <div>
+                              <Badge variant="success">
+                                <Gem size={10} />
+                                {user.subscriptionPlan?.toUpperCase() ||
+                                  "PREMIUM"}
+                              </Badge>
+                              <p className="text-[10px] text-zinc-600 font-mono mt-1">
+                                until {formatDate(user.subscriptionExpiresAt)}
+                              </p>
+                            </div>
+                          ) : (
+                            <Badge variant="outline">Free</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-zinc-500 font-mono">
+                            {user.createdAt ? formatDate(user.createdAt) : "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-xs text-zinc-500 font-mono">
+                            {user.lastLogin ? timeAgo(user.lastLogin) : "Never"}
+                          </span>
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal size={16} />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openEdit(user)}>
+                                <Edit3 size={14} /> Edit User
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => toggleActive(user)}
+                              >
+                                <UserX size={14} />{" "}
+                                {user.isActive ? "Deactivate" : "Activate"}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                destructive
+                                onClick={() => setDeleteConfirm(user)}
+                              >
+                                <Trash2 size={14} /> Delete User
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
+          </div>
 
           {/* Pagination */}
           <div className="flex items-center justify-between px-4 py-3 border-t border-zinc-800">

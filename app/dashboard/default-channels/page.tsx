@@ -1518,7 +1518,7 @@ export default function DefaultChannelsPage() {
 
       <div className="p-4 sm:p-6 space-y-5">
         {/* Tab switcher */}
-        <div className="flex gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 w-fit">
+        <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 w-full sm:w-fit">
           {[
             {
               id: "channels" as Tab,
@@ -1544,7 +1544,7 @@ export default function DefaultChannelsPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+              className={`flex items-center gap-1 px-2.5 sm:px-4 py-2 text-xs sm:text-sm rounded-lg font-medium transition-all duration-150 ${
                 tab === t.id
                   ? "bg-zinc-800 text-white shadow-sm"
                   : "text-zinc-500 hover:text-zinc-300"

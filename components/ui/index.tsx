@@ -372,7 +372,7 @@ export function StatCard({
           <p className="text-[10px] sm:text-xs font-mono font-medium text-zinc-500 uppercase tracking-widest truncate">
             {title}
           </p>
-          <p className="mt-2 text-2xl sm:text-3xl font-bold text-white font-mono">
+          <p className="mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-white font-mono truncate">
             {typeof value === "number" ? value.toLocaleString() : value}
           </p>
           {sub && <p className="mt-1 text-xs text-zinc-500 truncate">{sub}</p>}
