@@ -5,6 +5,11 @@ import Providers from "@/components/Providers";
 export const metadata: Metadata = {
   title: "TelPlayer Admin",
   description: "Admin Panel",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
