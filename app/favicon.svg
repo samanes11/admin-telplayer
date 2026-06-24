@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&amp;display=swap');
+    </style>
+  </defs>
+  <!-- outer shell -->
+  <rect x="0" y="0" width="72" height="72" rx="16" fill="#1c1917"/>
+  <!-- title bar -->
+  <rect x="0" y="0" width="72" height="22" rx="16" fill="#292524"/>
+  <rect x="0" y="11" width="72" height="11" fill="#292524"/>
+  <!-- traffic lights -->
+  <circle cx="11" cy="11" r="3.2" fill="#ff5f57"/>
+  <circle cx="22" cy="11" r="3.2" fill="#febc2e"/>
+  <!-- SE monogram -->
+  <text font-family="'DM Serif Display', Georgia, serif" font-size="28" font-style="italic" fill="#c8922a" x="36" y="50" text-anchor="middle" dominant-baseline="central">SE</text>
+</svg>
