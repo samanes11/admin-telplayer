@@ -22,6 +22,7 @@ export async function GET() {
     botConnections,
     recentUsers,
     recentSongs,
+    subscribedUsers,
   ] = await Promise.all([
     db.collection("users").countDocuments(),
     db.collection("users").countDocuments({ isActive: true }),
@@ -41,6 +42,9 @@ export async function GET() {
       .sort({ messageDate: -1 })
       .limit(5)
       .toArray(),
+    db.collection("users").countDocuments({
+      subscriptionExpiresAt: { $gt: new Date() },
+    }),
   ]);
 
   // Songs per channel stats for chart
@@ -136,7 +140,11 @@ export async function GET() {
   };
 
   return NextResponse.json({
-    users: { total: totalUsers, active: activeUsers },
+    users: {
+      total: totalUsers,
+      active: activeUsers,
+      subscribed: subscribedUsers,
+    },
     channels: { total: totalChannels, active: activeChannels },
     songs: { total: totalSongs },
     bot: { connectedUsers: botConnections },

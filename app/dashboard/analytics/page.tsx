@@ -124,10 +124,10 @@ export default function AnalyticsPage() {
 
   const pieData = data
     ? [
-        { name: "Subscribed", value: data.revenue?.totalCount ?? 0 },
+        { name: "Subscribed", value: data.users?.subscribed ?? 0 },
         {
           name: "Free",
-          value: (data.users?.total ?? 0) - (data.revenue?.totalCount ?? 0),
+          value: (data.users?.total ?? 0) - (data.users?.subscribed ?? 0),
         },
       ]
     : [];
@@ -173,12 +173,12 @@ export default function AnalyticsPage() {
                 value: data
                   ? data.users?.total > 0
                     ? Math.round(
-                        ((data.revenue?.totalCount ?? 0) / data.users?.total) *
+                        ((data.users?.subscribed ?? 0) / data.users?.total) *
                           100,
                       ) + "%"
                     : "0%"
                   : "—",
-                sub: `${data?.revenue?.totalCount ?? 0} paid subscriptions`,
+                sub: `${data?.users?.subscribed ?? 0} active subscriptions`,
                 icon: <Users size={18} />,
                 color: "text-purple-400 bg-purple-500/10",
               },
@@ -305,7 +305,7 @@ export default function AnalyticsPage() {
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500" />
                       <span className="text-xs text-zinc-400">
-                        Subscribed ({data?.revenue?.totalCount ?? 0})
+                        Subscribed ({data?.users?.subscribed ?? 0})
                       </span>
                     </div>
 
@@ -314,7 +314,7 @@ export default function AnalyticsPage() {
                       <span className="text-xs text-zinc-400">
                         Free (
                         {(data?.users?.total ?? 0) -
-                          (data?.revenue?.totalCount ?? 0)}
+                          (data?.users?.subscribed ?? 0)}
                         )
                       </span>
                     </div>
