@@ -22,13 +22,25 @@ export async function GET(req: NextRequest) {
 
   // اگه userId فیلتر داره، اول از user_channels بگیر
   let channelUsernames: string[] | null = null;
+  // map از channelUsername به channelDisplayName برای این یوزر خاص
+  let channelDisplayNameMap: Record<string, string> = {};
+
   if (userId) {
     const userChannels = await db
       .collection("user_channels")
       .find({ userId })
-      .project({ channelUsername: 1 })
+      .project({ channelUsername: 1, channelDisplayName: 1 })
       .toArray();
+
     channelUsernames = userChannels.map((c: any) => c.channelUsername);
+
+    // ساخت map برای استفاده بعد از aggregate
+    channelDisplayNameMap = Object.fromEntries(
+      userChannels.map((c: any) => [
+        c.channelUsername,
+        c.channelDisplayName ?? null,
+      ])
+    );
   }
 
   const matchStage: Record<string, any> = {};
@@ -93,8 +105,18 @@ export async function GET(req: NextRequest) {
     .toArray();
 
   const total = result.meta[0]?.total ?? 0;
-  const channels = result.data ?? [];
   const totalPages = Math.ceil(total / limit);
+
+  // اگه userId بود، channelDisplayName رو از map اضافه کن
+  const channels = (result.data ?? []).map((ch: any) => {
+    if (!userId) return ch;
+    const displayName = channelDisplayNameMap[ch.channelUsername];
+    return {
+      ...ch,
+      // اگه یوزر نام داده بود اون رو برگردون، وگرنه channelName واقعی
+      channelDisplayName: displayName ?? ch.channelName,
+    };
+  });
 
   return NextResponse.json({ data: channels, total, page, totalPages });
 }

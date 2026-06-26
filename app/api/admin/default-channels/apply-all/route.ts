@@ -70,6 +70,7 @@ export async function POST() {
       await db.collection("user_channels").insertOne({
         userId,
         channelUsername: dc.channelUsername,
+        channelDisplayName: dc.channelName,
         addedAt: new Date(),
         isDefault: true,
       });

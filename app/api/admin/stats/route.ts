@@ -50,27 +50,16 @@ export async function GET() {
   // Songs per channel stats for chart
   const channelStats = await db
     .collection("channels")
-    .aggregate([
-      {
-        $lookup: {
-          from: "songs",
-          localField: "_id",
-          foreignField: "channelDbId",
-          as: "songs",
-        },
-      },
-      {
-        $project: {
-          channelName: 1,
-          channelUsername: 1,
-          status: 1,
-          songsCount: { $size: "$songs" },
-          addedAt: 1,
-        },
-      },
-      { $sort: { songsCount: -1 } },
-      { $limit: 10 },
-    ])
+    .find({})
+    .project({
+      channelName: 1,
+      channelUsername: 1,
+      status: 1,
+      songsCount: 1,
+      addedAt: 1,
+    })
+    .sort({ songsCount: -1 })
+    .limit(10)
     .toArray();
 
   // Downloads trend (last 7 days)

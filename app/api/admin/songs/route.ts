@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "20");
   const search = searchParams.get("search") || "";
   const channelDbId = searchParams.get("channelDbId") || "";
+  const channelUsername = searchParams.get("channelUsername") || "";
   const skip = (page - 1) * limit;
 
   const query: any = {};
@@ -27,9 +28,11 @@ export async function GET(req: NextRequest) {
     ];
   }
   if (channelDbId) query.channelDbId = channelDbId;
+  if (channelUsername) query.channelUsername = channelUsername;
 
   const [songs, total] = await Promise.all([
-    db.collection("songs")
+    db
+      .collection("songs")
       .find(query, { projection: { thumbnail: 0 } })
       .sort({ messageDate: -1 })
       .skip(skip)
