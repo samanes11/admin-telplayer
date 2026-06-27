@@ -59,26 +59,10 @@ export async function GET(req: NextRequest) {
               },
             },
 
-            // count downloads
-            {
-              $lookup: {
-                from: "user_downloads",
-                let: { uid: "$_userIdStr" },
-                pipeline: [
-                  { $match: { $expr: { $eq: ["$userId", "$$uid"] } } },
-                  { $count: "n" },
-                ],
-                as: "_downloads",
-              },
-            },
-
             {
               $addFields: {
                 channelCount: {
                   $ifNull: [{ $arrayElemAt: ["$_channels.n", 0] }, 0],
-                },
-                downloadCount: {
-                  $ifNull: [{ $arrayElemAt: ["$_downloads.n", 0] }, 0],
                 },
               },
             },
@@ -93,7 +77,7 @@ export async function GET(req: NextRequest) {
               },
             },
 
-            { $project: { _userIdStr: 0, _channels: 0, _downloads: 0 } },
+            { $project: { _userIdStr: 0, _channels: 0 } },
           ],
         },
       },
@@ -183,7 +167,6 @@ export async function DELETE(req: NextRequest) {
   await Promise.all([
     db.collection("users").deleteOne({ _id: objId }),
     db.collection("user_channels").deleteMany({ userId: id }),
-    db.collection("user_downloads").deleteMany({ userId: id }),
     db.collection("user_favorites").deleteMany({ userId: id }),
     db.collection("user_playlists").deleteMany({ userId: id }),
     db.collection("user_proxy_settings").deleteMany({ userId: id }),

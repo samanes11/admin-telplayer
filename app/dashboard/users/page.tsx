@@ -199,7 +199,6 @@ export default function UsersPage() {
                   <TableHead>User</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Channels</TableHead>
                   <TableHead>Subscription</TableHead>
                   <TableHead className="hidden lg:table-cell">Joined</TableHead>
                   <TableHead className="hidden lg:table-cell">Last Login</TableHead>
@@ -208,9 +207,9 @@ export default function UsersPage() {
               </TableHeader>
               <TableBody>
                 {loading
-                  ? Array.from({ length: 9 }).map((_, i) => (
+                  ? Array.from({ length: 8 }).map((_, i) => (
                       <TableRow key={i}>
-                        {Array.from({ length: 9 }).map((_, j) => (
+                        {Array.from({ length: 8 }).map((_, j) => (
                           <TableCell key={j}>
                             <Skeleton className="h-5 w-full" />
                           </TableCell>
@@ -261,12 +260,6 @@ export default function UsersPage() {
                             >
                               {user.isActive ? "Active" : "Inactive"}
                             </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-xs">
-                            <Radio size={12} className="text-purple-400" />
-                            {user.channelCount}
                           </div>
                         </TableCell>
                         <TableCell>
