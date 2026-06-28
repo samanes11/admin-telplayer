@@ -72,8 +72,8 @@ const tooltipStyle = {
 
 interface Transaction {
   orderId: string;
-  userEmail?: string;
   userName?: string;
+  userTelegramUsername?: string;
   planTitle?: string;
   planId: string;
   amount: number;
@@ -519,7 +519,7 @@ export default function AnalyticsPage() {
                             {tx.userName || "—"}
                           </p>
                           <p className="text-xs text-zinc-600 font-mono">
-                            {tx.userEmail || "—"}
+                            {tx.userTelegramUsername  || "—"}
                           </p>
                         </TableCell>
                         <TableCell>

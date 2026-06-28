@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
             },
             {
               $addFields: {
-                userEmail: { $arrayElemAt: ["$_user.email", 0] },
+                userTelegramUsername: { $arrayElemAt: ["$_user.telegramUsername", 0] },
                 userName: { $arrayElemAt: ["$_user.name", 0] },
               },
             },

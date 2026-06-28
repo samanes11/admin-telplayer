@@ -49,7 +49,7 @@ import { timeAgo, formatDate } from "@/lib/utils";
 
 interface User {
   _id: string;
-  email: string;
+  telegramUsername?: string;
   name: string;
   role: string;
   isActive: boolean;
@@ -71,10 +71,9 @@ export default function UsersPage() {
   const [editUser, setEditUser] = useState<User | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
-    email: "",
+    userName: "",
     role: "user",
     isActive: true,
-    password: "",
   });
   const [editLoading, setEditLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -118,10 +117,9 @@ export default function UsersPage() {
     setEditUser(user);
     setEditForm({
       name: user.name,
-      email: user.email,
+      userName: user.telegramUsername,
       role: user.role,
       isActive: user.isActive,
-      password: "",
     });
   }
 
@@ -129,7 +127,6 @@ export default function UsersPage() {
     if (!editUser) return;
     setEditLoading(true);
     const body: any = { id: editUser._id, ...editForm };
-    if (!body.password) delete body.password;
     await fetch("/api/admin/users", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -175,7 +172,7 @@ export default function UsersPage() {
           <div className="flex-1 min-w-48">
             <Input
               icon={<Search size={14} />}
-              placeholder="Search by name or email…"
+              placeholder="Search by name or username…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -224,13 +221,13 @@ export default function UsersPage() {
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar name={user.name || user.email} size="sm" />
+                            <Avatar name={user.name || user.telegramUsername} size="sm" />
                             <div>
                               <p className="font-medium text-white text-sm">
                                 {user.name || "—"}
                               </p>
                               <p className="text-xs text-zinc-500 font-mono">
-                                {user.email}
+                                {user.telegramUsername ? `@${user.telegramUsername}` : "—"}
                               </p>
                             </div>
                           </div>
@@ -370,13 +367,13 @@ export default function UsersPage() {
           {editUser && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900 border border-zinc-800">
-                <Avatar name={editUser.name || editUser.email} />
+                <Avatar name={editUser.name || editUser.telegramUsername} />
                 <div>
                   <p className="text-sm font-medium text-white">
                     {editUser.name || "Unnamed"}
                   </p>
                   <p className="text-xs text-zinc-500 font-mono">
-                    {editUser.email}
+                    {editUser.telegramUsername}
                   </p>
                 </div>
               </div>
@@ -396,14 +393,14 @@ export default function UsersPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-mono text-zinc-500 mb-1.5 uppercase tracking-wider">
-                    Email
+                    userName
                   </label>
                   <Input
-                    value={editForm.email}
+                    value={editForm.userName}
                     onChange={(e) =>
-                      setEditForm((f) => ({ ...f, email: e.target.value }))
+                      setEditForm((f) => ({ ...f, uerName: e.target.value }))
                     }
-                    placeholder="Email"
+                    placeholder="UserName"
                   />
                 </div>
               </div>
@@ -443,29 +440,6 @@ export default function UsersPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-mono text-zinc-500 mb-1.5 uppercase tracking-wider">
-                  New Password{" "}
-                  <span className="text-zinc-600">(leave blank to keep)</span>
-                </label>
-                <div className="relative">
-                  <Input
-                    type={showPass ? "text" : "password"}
-                    value={editForm.password}
-                    onChange={(e) =>
-                      setEditForm((f) => ({ ...f, password: e.target.value }))
-                    }
-                    placeholder="••••••••"
-                  />
-                  <button
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                    onClick={() => setShowPass((s) => !s)}
-                  >
-                    {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-              </div>
-
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -500,7 +474,7 @@ export default function UsersPage() {
             <p className="text-sm text-zinc-400">
               This will permanently delete{" "}
               <span className="text-white font-medium">
-                {deleteConfirm?.email}
+                {deleteConfirm?.telegramUsername}
               </span>{" "}
               and all their channels, songs, downloads, and playlists.
             </p>

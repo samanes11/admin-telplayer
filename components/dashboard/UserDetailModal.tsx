@@ -25,7 +25,7 @@ import { formatDuration, formatDate } from "@/lib/utils";
 interface AdminUser {
   _id: string;
   name?: string;
-  email: string;
+  telegramUsername?: string;
   subscriptionPlan?: string | null;
   subscriptionExpiresAt?: string | null;
 }
@@ -185,11 +185,11 @@ export default function UserDetailModal({
         <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <Avatar name={user?.name || user?.email || "?"} />
+              <Avatar name={user?.name || user?.telegramUsername  || "?"} />
               <div>
                 <p>{user?.name || "Unnamed"}</p>
                 <p className="text-xs text-zinc-500 font-normal font-mono">
-                  {user?.email}
+                  {user?.telegramUsername }
                 </p>
                 {user?.subscriptionExpiresAt &&
                 new Date(user.subscriptionExpiresAt) > new Date() ? (

@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB, getDb } from "@/lib/db";
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -22,8 +21,8 @@ export async function GET(req: NextRequest) {
   const matchStage: Record<string, any> = {};
   if (search) {
     matchStage.$or = [
-      { email: { $regex: search, $options: "i" } },
       { name: { $regex: search, $options: "i" } },
+      { telegramUsername: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -41,7 +40,7 @@ export async function GET(req: NextRequest) {
             { $limit: limit },
 
             // hide sensitive fields
-            { $project: { password: 0, refreshToken: 0 } },
+            { $project: { refreshToken: 0 } },
 
             // userId is stored as string in sub-collections
             { $addFields: { _userIdStr: { $toString: "$_id" } } },
@@ -106,7 +105,7 @@ export async function PUT(req: NextRequest) {
   const db = getDb();
 
   const body = await req.json();
-  const { id, name, email, role, isActive, password } = body;
+  const { id, name, role, isActive } = body; 
   if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
   let objId: mongoose.Types.ObjectId;
@@ -118,13 +117,8 @@ export async function PUT(req: NextRequest) {
 
   const update: Record<string, any> = { updatedAt: new Date() };
   if (name !== undefined) update.name = name;
-  if (email !== undefined) update.email = email.toLowerCase();
   if (role !== undefined) update.role = role;
   if (isActive !== undefined) update.isActive = isActive;
-  if (password && password.length >= 6) {
-    const salt = await bcrypt.genSalt(10);
-    update.password = await bcrypt.hash(password, salt);
-  }
 
   await db.collection("users").updateOne({ _id: objId }, { $set: update });
   return NextResponse.json({ success: true });

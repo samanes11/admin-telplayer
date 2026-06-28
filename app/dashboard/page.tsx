@@ -281,13 +281,13 @@ export default function DashboardPage() {
                       key={user._id}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.03] transition-colors"
                     >
-                      <Avatar name={user.name || user.email} size="sm" />
+                      <Avatar name={user.name || user.telegramUsername } size="sm" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white truncate">
                           {user.name || "Unnamed"}
                         </p>
                         <p className="text-xs text-zinc-500 font-mono truncate">
-                          {user.email}
+                          {user.telegramUsername }
                         </p>
                       </div>
                       <div className="text-right shrink-0">
