@@ -45,10 +45,19 @@ export async function POST() {
       existingChannels.map((c: any) => c.channelUsername),
     );
 
+    const deletedDefaults = await db
+      .collection("user_deleted_default_channels")
+      .find({ userId })
+      .project({ channelUsername: 1 })
+      .toArray();
+    const deletedUsernames = new Set(
+      deletedDefaults.map((d: any) => d.channelUsername),
+    );
+
     for (const dc of defaults) {
       if (existingUsernames.has(dc.channelUsername)) continue;
+      if (deletedUsernames.has(dc.channelUsername)) continue;
 
-      // چک کن channel shared وجود داره یا نه
       let channel = await db.collection("channels").findOne({
         channelUsername: dc.channelUsername,
       });
