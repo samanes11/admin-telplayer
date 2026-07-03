@@ -199,110 +199,118 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-{/* Android vs iOS */}
-<Card>
-  <CardHeader>
-    <div className="flex items-center justify-between">
-      <CardTitle>Device Distribution</CardTitle>
-      <Disc3 size={16} className="text-zinc-600" />
-    </div>
-    <p className="text-xs text-zinc-500">Active device sessions</p>
-  </CardHeader>
-
-  <CardContent>
-    {loading ? (
-      <Skeleton className="h-40" />
-    ) : (
-      (() => {
-        const stats = data?.deviceStats ?? [];
-
-        const androidCount =
-          stats.find((s: any) => s._id === "Android")?.count ?? 0;
-        const iosCount =
-          stats.find((s: any) => s._id === "iOS")?.count ?? 0;
-        const otherCount =
-          stats.find((s: any) => s._id === "Other")?.count ?? 0;
-
-        const total = androidCount + iosCount + otherCount;
-
-        const androidPercent = total
-          ? ((androidCount / total) * 100).toFixed(1)
-          : 0;
-
-        const iosPercent = total
-          ? ((iosCount / total) * 100).toFixed(1)
-          : 0;
-
-        const otherPercent = total
-          ? ((otherCount / total) * 100).toFixed(1)
-          : 0;
-
-        return (
-          <div className="space-y-6">
-            {/* Progress Bar */}
-            <div className="w-full h-4 rounded-full overflow-hidden bg-zinc-800 flex">
-              <div
-                className="bg-emerald-500 transition-all duration-500"
-                style={{ width: `${androidPercent}%` }}
-              />
-              <div
-                className="bg-zinc-400 transition-all duration-500"
-                style={{ width: `${iosPercent}%` }}
-              />
-              {otherCount > 0 && (
-                <div
-                  className="bg-zinc-600 transition-all duration-500"
-                  style={{ width: `${otherPercent}%` }}
-                />
-              )}
-            </div>
-
-            {/* Stats */}
-            <div className="space-y-3">
+          {/* Android vs iOS */}
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-sm text-zinc-300">Android</span>
-                </div>
-                <div className="text-sm text-zinc-400">
-                  {androidCount} sessions • {androidPercent}%
-                </div>
+                <CardTitle>Device Distribution</CardTitle>
+                <Disc3 size={16} className="text-zinc-600" />
               </div>
+              <p className="text-xs text-zinc-500">Active device sessions</p>
+            </CardHeader>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-zinc-400" />
-                  <span className="text-sm text-zinc-300">iOS</span>
-                </div>
-                <div className="text-sm text-zinc-400">
-                  {iosCount} sessions • {iosPercent}%
-                </div>
-              </div>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-40" />
+              ) : (
+                (() => {
+                  const stats = data?.deviceStats ?? [];
 
-              {otherCount > 0 && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-zinc-600" />
-                    <span className="text-sm text-zinc-300">Other</span>
-                  </div>
-                  <div className="text-sm text-zinc-400">
-                    {otherCount} sessions • {otherPercent}%
-                  </div>
-                </div>
+                  const androidCount =
+                    stats.find((s: any) => s._id === "Android")?.count ?? 0;
+                  const iosCount =
+                    stats.find((s: any) => s._id === "iOS")?.count ?? 0;
+                  const otherCount =
+                    stats.find((s: any) => s._id === "Other")?.count ?? 0;
+
+                  const total = androidCount + iosCount + otherCount;
+
+                  const androidPercent = total
+                    ? ((androidCount / total) * 100).toFixed(1)
+                    : 0;
+
+                  const iosPercent = total
+                    ? ((iosCount / total) * 100).toFixed(1)
+                    : 0;
+
+                  const otherPercent = total
+                    ? ((otherCount / total) * 100).toFixed(1)
+                    : 0;
+
+                  return (
+                    <div className="space-y-6">
+                      {/* Progress Bar */}
+                      <div className="w-full h-4 rounded-full overflow-hidden bg-zinc-800 flex">
+                        <div
+                          className="bg-emerald-500 transition-all duration-500"
+                          style={{ width: `${androidPercent}%` }}
+                        />
+                        <div
+                          className="bg-zinc-400 transition-all duration-500"
+                          style={{ width: `${iosPercent}%` }}
+                        />
+                        {otherCount > 0 && (
+                          <div
+                            className="bg-zinc-600 transition-all duration-500"
+                            style={{ width: `${otherPercent}%` }}
+                          />
+                        )}
+                      </div>
+
+                      {/* Stats */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                            <span className="text-sm text-zinc-300">
+                              Android
+                            </span>
+                          </div>
+                          <div className="text-sm text-zinc-400">
+                            {androidCount} sessions • {androidPercent}%
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-zinc-400" />
+                            <span className="text-sm text-zinc-300">iOS</span>
+                          </div>
+                          <div className="text-sm text-zinc-400">
+                            {iosCount} sessions • {iosPercent}%
+                          </div>
+                        </div>
+
+                        {otherCount > 0 && (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-zinc-600" />
+                              <span className="text-sm text-zinc-300">
+                                Other
+                              </span>
+                            </div>
+                            <div className="text-sm text-zinc-400">
+                              {otherCount} sessions • {otherPercent}%
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Total */}
+                      <div className="pt-2 border-t border-zinc-800 flex justify-between">
+                        <span className="text-sm text-zinc-500">
+                          Total Sessions
+                        </span>
+                        <span className="text-sm font-medium text-white">
+                          {total}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()
               )}
-            </div>
-
-            {/* Total */}
-            <div className="pt-2 border-t border-zinc-800 flex justify-between">
-              <span className="text-sm text-zinc-500">Total Sessions</span>
-              <span className="text-sm font-medium text-white">{total}</span>
-            </div>
-          </div>
-        );
-      })()
-    )}
-  </CardContent>
-</Card>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Recent Activity Row */}
