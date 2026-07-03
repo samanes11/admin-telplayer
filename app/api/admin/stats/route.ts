@@ -64,20 +64,40 @@ export async function GET() {
 
   // Downloads trend (last 7 days)
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const downloadTrend = await db
-    .collection("user_downloads")
+  const deviceStats = await db
+    .collection("user_sessions")
     .aggregate([
-      { $match: { startedAt: { $gte: sevenDaysAgo } } },
+      { $match: { isActive: true } },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$startedAt" } },
+          _id: {
+            $cond: [
+              {
+                $regexMatch: {
+                  input: { $ifNull: ["$platform", ""] },
+                  regex: /ios|iphone|ipad/i,
+                },
+              },
+              "iOS",
+              {
+                $cond: [
+                  {
+                    $regexMatch: {
+                      input: { $ifNull: ["$platform", ""] },
+                      regex: /android/i,
+                    },
+                  },
+                  "Android",
+                  "Other",
+                ],
+              },
+            ],
+          },
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } },
     ])
     .toArray();
-
   // Revenue & subscription purchase stats
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
@@ -140,7 +160,7 @@ export async function GET() {
     recentUsers,
     recentSongs,
     channelStats,
-    downloadTrend,
+    deviceStats,
     revenue,
     purchaseTrend,
   });
