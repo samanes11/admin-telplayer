@@ -19,6 +19,8 @@ import {
   Gem,
   ListMusic,
   CreditCard,
+  LogOut,
+  Smartphone,
 } from "lucide-react";
 import { formatDuration, formatDate } from "@/lib/utils";
 
@@ -55,7 +57,17 @@ interface AdminSong {
   fileSize: number;
 }
 
-type Tab = "channels" | "playlists" | "payments";
+interface AdminSession {
+  _id: string;
+  deviceName: string;
+  platform: string;
+  deviceId?: string;
+  isActive: boolean;
+  createdAt?: string;
+  lastActive?: string;
+}
+
+type Tab = "channels" | "playlists" | "payments" | "sessions";
 
 const statusConfig: Record<
   string,
@@ -77,6 +89,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "channels", label: "Channels", icon: <Radio size={13} /> },
   { id: "playlists", label: "Playlists", icon: <ListMusic size={13} /> },
   { id: "payments", label: "Payments", icon: <CreditCard size={13} /> },
+  { id: "sessions", label: "Sessions", icon: <Smartphone size={13} /> },
 ];
 
 export default function UserDetailModal({
@@ -109,6 +122,11 @@ export default function UserDetailModal({
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
+  // ── Sessions ────────────────────────────────────────────────
+  const [sessions, setSessions] = useState<AdminSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [loggingOutId, setLoggingOutId] = useState<string | null>(null);
+
   // Reset transient state whenever a new user is opened
   useEffect(() => {
     setTab("channels");
@@ -127,6 +145,30 @@ export default function UserDetailModal({
       .then((d) => setOrders(d.data || []))
       .finally(() => setLoadingOrders(false));
   }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setSessions([]);
+      return;
+    }
+    setLoadingSessions(true);
+    fetch(`/api/admin/sessions?userId=${user._id}`)
+      .then((r) => r.json())
+      .then((d) => setSessions(d.data || []))
+      .finally(() => setLoadingSessions(false));
+  }, [user]);
+
+  async function handleLogoutSession(sessionId: string) {
+    setLoggingOutId(sessionId);
+    try {
+      await fetch(`/api/admin/sessions?id=${sessionId}`, { method: "DELETE" });
+      setSessions((prev) =>
+        prev.map((s) => (s._id === sessionId ? { ...s, isActive: false } : s)),
+      );
+    } finally {
+      setLoggingOutId(null);
+    }
+  }
 
   useEffect(() => {
     if (!user) {
@@ -185,11 +227,11 @@ export default function UserDetailModal({
         <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <Avatar name={user?.name || user?.telegramUsername  || "?"} />
+              <Avatar name={user?.name || user?.telegramUsername || "?"} />
               <div>
                 <p>{user?.name || "Unnamed"}</p>
                 <p className="text-xs text-zinc-500 font-normal font-mono">
-                  {user?.telegramUsername }
+                  {user?.telegramUsername}
                 </p>
                 {user?.subscriptionExpiresAt &&
                 new Date(user.subscriptionExpiresAt) > new Date() ? (
@@ -374,6 +416,72 @@ export default function UserDetailModal({
                         >
                           {o.status}
                         </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            {/* ── Sessions tab ─────────────────────────────────── */}
+            {tab === "sessions" &&
+              (loadingSessions ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-20 rounded-xl" />
+                  ))}
+                </div>
+              ) : sessions.length === 0 ? (
+                <div className="text-center py-12 text-zinc-600">
+                  <Smartphone size={32} className="mx-auto mb-3 opacity-30" />
+                  <p className="text-sm">No sessions found</p>
+                </div>
+              ) : (
+                <div className="space-y-2 pb-2">
+                  {sessions.map((s) => (
+                    <div
+                      key={s._id}
+                      className="flex items-center gap-3 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60"
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                          s.isActive ? "bg-emerald-900/40" : "bg-zinc-800"
+                        }`}
+                      >
+                        <Smartphone
+                          size={16}
+                          className={
+                            s.isActive ? "text-emerald-400" : "text-zinc-500"
+                          }
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">
+                          {s.deviceName}
+                        </p>
+                        <p className="text-xs text-zinc-500 truncate">
+                          {s.platform}
+                          {s.deviceId ? ` · ${s.deviceId.slice(0, 8)}` : ""}
+                        </p>
+                        <p className="text-[10px] text-zinc-600 font-mono mt-1">
+                          Last active:{" "}
+                          {s.lastActive ? formatDate(s.lastActive) : "—"}
+                          {"  ·  "}
+                          Created: {s.createdAt ? formatDate(s.createdAt) : "—"}
+                        </p>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-2">
+                        <Badge variant={s.isActive ? "success" : "outline"}>
+                          {s.isActive ? "Active" : "Logged out"}
+                        </Badge>
+                        {s.isActive && (
+                          <button
+                            onClick={() => handleLogoutSession(s._id)}
+                            disabled={loggingOutId === s._id}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-400 hover:bg-red-950 transition-colors disabled:opacity-50"
+                          >
+                            <LogOut size={12} />
+                            {loggingOutId === s._id ? "..." : "Logout"}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
