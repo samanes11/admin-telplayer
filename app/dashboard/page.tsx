@@ -30,6 +30,8 @@ import {
   Mail,
   DollarSign,
   PieChart,
+  Hash,
+  Send,
 } from "lucide-react";
 import { formatDate, timeAgo, formatDuration } from "@/lib/utils";
 import {
@@ -449,17 +451,27 @@ export default function DashboardPage() {
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <Avatar name={m.name || m.email || "?"} size="sm" />
+                        <Avatar
+                          name={m.name || m.telegramUsername || "?"}
+                          size="sm"
+                        />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-white truncate">
                             {m.name || "Anonymous"}
                           </p>
-                          {m.email && (
-                            <p className="text-xs text-zinc-500 font-mono flex items-center gap-1 truncate">
-                              <Mail size={10} />
-                              {m.email}
-                            </p>
-                          )}
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            {m.telegramUsername && (
+                              <p className="text-xs text-zinc-500 font-mono flex items-center gap-1 truncate">
+                                <Send size={10} />@{m.telegramUsername}
+                              </p>
+                            )}
+                            {m.telegramId && (
+                              <p className="text-xs text-zinc-600 font-mono flex items-center gap-1 truncate">
+                                <Hash size={10} />
+                                {m.telegramId}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <span className="text-[10px] text-zinc-600 font-mono shrink-0">
