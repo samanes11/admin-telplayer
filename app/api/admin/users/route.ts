@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     matchStage.$or = [
       { name: { $regex: search, $options: "i" } },
       { telegramUsername: { $regex: search, $options: "i" } },
+      { telegramId: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -105,7 +106,7 @@ export async function PUT(req: NextRequest) {
   const db = getDb();
 
   const body = await req.json();
-  const { id, name, role, isActive } = body; 
+  const { id, name, role, isActive } = body;
   if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
   let objId: mongoose.Types.ObjectId;

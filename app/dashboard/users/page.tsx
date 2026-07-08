@@ -50,6 +50,7 @@ import { timeAgo, formatDate } from "@/lib/utils";
 interface User {
   _id: string;
   telegramUsername?: string;
+  telegramId?: string;
   name: string;
   role: string;
   isActive: boolean;
@@ -172,7 +173,7 @@ export default function UsersPage() {
           <div className="flex-1 min-w-48">
             <Input
               icon={<Search size={14} />}
-              placeholder="Search by name or username…"
+              placeholder="Search by name, username or Telegram ID…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -198,7 +199,9 @@ export default function UsersPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Subscription</TableHead>
                   <TableHead className="hidden lg:table-cell">Joined</TableHead>
-                  <TableHead className="hidden lg:table-cell">Last Login</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Last Login
+                  </TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -221,13 +224,21 @@ export default function UsersPage() {
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar name={user.name || user.telegramUsername} size="sm" />
+                            <Avatar
+                              name={user.name || user.telegramUsername}
+                              size="sm"
+                            />
                             <div>
                               <p className="font-medium text-white text-sm">
                                 {user.name || "—"}
                               </p>
                               <p className="text-xs text-zinc-500 font-mono">
-                                {user.telegramUsername ? `@${user.telegramUsername}` : "—"}
+                                {user.telegramUsername
+                                  ? `@${user.telegramUsername}`
+                                  : "—"}
+                              </p>
+                              <p className="text-[10px] text-zinc-600 font-mono">
+                                ID: {user.telegramId || "—"}
                               </p>
                             </div>
                           </div>
