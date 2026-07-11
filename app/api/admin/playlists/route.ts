@@ -24,12 +24,20 @@ export async function GET(req: NextRequest) {
     try {
       objId = new mongoose.Types.ObjectId(playlistId);
     } catch {
-      return NextResponse.json({ error: "Invalid playlist id" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid playlist id" },
+        { status: 400 },
+      );
     }
 
-    const playlist = await db.collection("user_playlists").findOne({ _id: objId });
+    const playlist = await db
+      .collection("user_playlists")
+      .findOne({ _id: objId });
     if (!playlist)
-      return NextResponse.json({ error: "Playlist not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Playlist not found" },
+        { status: 404 },
+      );
 
     const songIds: string[] = playlist.songIds ?? [];
     const objIds = songIds
@@ -43,8 +51,14 @@ export async function GET(req: NextRequest) {
       .filter(Boolean) as mongoose.Types.ObjectId[];
 
     const [songs, botSongs] = await Promise.all([
-      db.collection("songs").find({ _id: { $in: objIds } }).toArray(),
-      db.collection("bot_songs").find({ _id: { $in: objIds } }).toArray(),
+      db
+        .collection("songs")
+        .find({ _id: { $in: objIds } })
+        .toArray(),
+      db
+        .collection("bot_songs")
+        .find({ _id: { $in: objIds } })
+        .toArray(),
     ]);
 
     const songMap = new Map(songs.map((s: any) => [s._id.toString(), s]));
@@ -77,7 +91,7 @@ export async function GET(req: NextRequest) {
   const playlists = await db
     .collection("user_playlists")
     .aggregate([
-      { $match: { userId } },
+      { $match: { userIds: userId } },
       { $sort: { updatedAt: -1 } },
       {
         $addFields: {

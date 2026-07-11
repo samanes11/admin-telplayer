@@ -44,7 +44,6 @@ interface AdminChannel {
 interface AdminPlaylist {
   _id: string;
   name: string;
-  description?: string | null;
   songsCount: number;
   updatedAt?: string;
 }
@@ -354,11 +353,6 @@ export default function UserDetailModal({
                         <p className="text-sm font-medium text-white truncate">
                           {pl.name}
                         </p>
-                        {pl.description && (
-                          <p className="text-xs text-zinc-500 truncate">
-                            {pl.description}
-                          </p>
-                        )}
                       </div>
                       <span className="text-[10px] text-zinc-600 font-mono flex items-center gap-1 shrink-0">
                         <Music2 size={9} />
