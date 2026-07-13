@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
             // count channels
             {
               $lookup: {
-                from: "telegram_channels",
+                from: "user_channels",
                 let: { uid: "$_userIdStr" },
                 pipeline: [
                   { $match: { $expr: { $eq: ["$userId", "$$uid"] } } },
