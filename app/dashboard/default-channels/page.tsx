@@ -1518,7 +1518,6 @@ function GlobalPromotionPanel() {
   const [days, setDays] = useState("");
   const [applying, setApplying] = useState(false);
   const [result, setResult] = useState<{
-    usersUpdated: number;
     endDate: string;
   } | null>(null);
   const [error, setError] = useState("");
@@ -1553,7 +1552,7 @@ function GlobalPromotionPanel() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to apply");
-      setResult({ usersUpdated: data.usersUpdated, endDate: data.endDate });
+      setResult({ endDate: data.endDate });
       setDays("");
       await load();
     } catch (e: any) {
@@ -1654,8 +1653,8 @@ function GlobalPromotionPanel() {
 
           {result && (
             <div className="mt-3 px-4 py-3 rounded-xl bg-emerald-950/30 border border-emerald-900/50 text-xs text-emerald-400">
-              ✓ Applied to {result.usersUpdated.toLocaleString()} user(s) —
-              everyone now has premium until {formatDate(result.endDate)}.
+              ✓ Activated instantly — every user (existing + future) has
+              premium until {formatDate(result.endDate)}.
             </div>
           )}
 

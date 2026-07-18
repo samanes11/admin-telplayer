@@ -56,42 +56,9 @@ export async function POST(req: NextRequest) {
     { upsert: true },
   );
 
-  // به همه‌ی یوزرهای فعلی اعمال می‌شه — اگه اشتراک فعلی‌شون دیرتر از این تاریخه، کوتاهش نمی‌کنیم
-  const result = await db.collection("users").updateMany({}, [
-    {
-      $set: {
-        subscriptionExpiresAt: {
-          $cond: [
-            {
-              $or: [
-                { $eq: ["$subscriptionExpiresAt", null] },
-                { $lt: ["$subscriptionExpiresAt", endDate] },
-              ],
-            },
-            endDate,
-            "$subscriptionExpiresAt",
-          ],
-        },
-        subscriptionPlan: {
-          $cond: [
-            {
-              $or: [
-                { $eq: ["$subscriptionExpiresAt", null] },
-                { $lt: ["$subscriptionExpiresAt", endDate] },
-              ],
-            },
-            "promo",
-            "$subscriptionPlan",
-          ],
-        },
-      },
-    },
-  ] as any);
-
   return NextResponse.json({
     success: true,
     endDate,
-    usersUpdated: result.modifiedCount,
   });
 }
 
