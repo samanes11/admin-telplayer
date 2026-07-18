@@ -52,7 +52,7 @@ import {
   Send,
   Bell,
 } from "lucide-react";
-import { timeAgo } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -85,8 +85,7 @@ interface ForwarderJob {
 // Tab type
 // ─────────────────────────────────────────────────────────────
 
-type Tab = "channels" | "forwarder" | "plans" | "broadcast";
-
+type Tab = "channels" | "forwarder" | "plans" | "broadcast" | "promo";
 // ─────────────────────────────────────────────────────────────
 // Forwarder Panel
 // ─────────────────────────────────────────────────────────────
@@ -1509,6 +1508,169 @@ function BroadcastPanel() {
   );
 }
 
+function GlobalPromotionPanel() {
+  const [promo, setPromo] = useState<{
+    active?: boolean;
+    endDate?: string;
+    days?: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [result, setResult] = useState<{
+    usersUpdated: number;
+    endDate: string;
+  } | null>(null);
+  const [error, setError] = useState("");
+  const [deactivating, setDeactivating] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/admin/global-promotion");
+    const data = await res.json();
+    setPromo(data.data || null);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function apply() {
+    setError("");
+    setResult(null);
+    const n = Number(days);
+    if (!n || n <= 0) {
+      setError("Please enter a valid number of days");
+      return;
+    }
+    setApplying(true);
+    try {
+      const res = await fetch("/api/admin/global-promotion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ days: n }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to apply");
+      setResult({ usersUpdated: data.usersUpdated, endDate: data.endDate });
+      setDays("");
+      await load();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setApplying(false);
+    }
+  }
+
+  async function deactivate() {
+    setDeactivating(true);
+    try {
+      await fetch("/api/admin/global-promotion", { method: "DELETE" });
+      await load();
+    } finally {
+      setDeactivating(false);
+    }
+  }
+
+  const isActive =
+    !!promo?.active && !!promo.endDate && new Date(promo.endDate) > new Date();
+  const daysRemaining =
+    isActive && promo?.endDate
+      ? Math.max(
+          0,
+          Math.ceil(
+            (new Date(promo.endDate).getTime() - Date.now()) /
+              (24 * 60 * 60 * 1000),
+          ),
+        )
+      : 0;
+
+  return (
+    <div className="space-y-5">
+      <Card>
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="p-2 rounded-xl bg-pink-500/10">
+              <Gem size={16} className="text-pink-400" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-white">
+                Global Subscription Promotion
+              </h2>
+              <p className="text-xs text-zinc-500">
+                Grant premium to every user — including future sign-ups — until
+                a fixed date.
+              </p>
+            </div>
+          </div>
+
+          {loading ? (
+            <Skeleton className="h-16 rounded-xl mb-4" />
+          ) : isActive ? (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-emerald-950/30 border border-emerald-900/50 text-sm text-emerald-400 flex items-center justify-between gap-3 flex-wrap">
+              <span>
+                Active — everyone (existing + new users) has premium until{" "}
+                <b>{formatDate(promo!.endDate!)}</b> ({daysRemaining} day
+                {daysRemaining === 1 ? "" : "s"} left)
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={deactivate}
+                loading={deactivating}
+              >
+                Deactivate
+              </Button>
+            </div>
+          ) : (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-500">
+              No active promotion right now.
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <Input
+                type="number"
+                min={1}
+                placeholder="Number of days (e.g. 7)"
+                value={days}
+                onChange={(e) => setDays(e.target.value)}
+              />
+            </div>
+            <Button onClick={apply} loading={applying} disabled={!days}>
+              <Gem size={14} />
+              Apply to All Users
+            </Button>
+          </div>
+
+          {error && (
+            <p className="mt-3 text-xs text-red-400 flex items-center gap-1.5">
+              <AlertTriangle size={12} />
+              {error}
+            </p>
+          )}
+
+          {result && (
+            <div className="mt-3 px-4 py-3 rounded-xl bg-emerald-950/30 border border-emerald-900/50 text-xs text-emerald-400">
+              ✓ Applied to {result.usersUpdated.toLocaleString()} user(s) —
+              everyone now has premium until {formatDate(result.endDate)}.
+            </div>
+          )}
+
+          <p className="mt-4 text-xs text-zinc-600 leading-relaxed">
+            The end date is fixed the moment you apply this — it never moves. A
+            user who registers on the last day of the promotion still only gets
+            premium until that same date. Users whose existing subscription
+            already extends past this date are not shortened.
+          </p>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function DefaultChannelsPage() {
   const [tab, setTab] = useState<Tab>("channels");
 
@@ -1540,6 +1702,11 @@ export default function DefaultChannelsPage() {
               label: "Broadcast",
               icon: <Bell size={14} />,
             },
+            {
+              id: "promo" as Tab,
+              label: "Global Subscription",
+              icon: <Gem size={14} />,
+            },
           ].map((t) => (
             <button
               key={t.id}
@@ -1563,6 +1730,8 @@ export default function DefaultChannelsPage() {
           <ForwarderPanel />
         ) : tab === "plans" ? (
           <PlansPanel />
+        ) : tab === "promo" ? (
+          <GlobalPromotionPanel />
         ) : (
           <BroadcastPanel />
         )}
