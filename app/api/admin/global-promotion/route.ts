@@ -41,6 +41,35 @@ export async function POST(req: NextRequest) {
   const now = new Date();
   const endDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
+  const existing = await db
+    .collection("app_settings")
+    .findOne({ _id: SETTINGS_ID as any });
+  const wasActive =
+    !!existing?.active && !!existing?.endDate && new Date(existing.endDate) > now;
+
+  if (!wasActive) {
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    await db.collection("users").updateMany(
+      { subscriptionExpiresAt: { $gt: now } },
+      [
+        {
+          $set: {
+            reservedDaysAfterPromo: {
+              $add: [
+                { $ifNull: ["$reservedDaysAfterPromo", 0] },
+                {
+                  $ceil: {
+                    $divide: [{ $subtract: ["$subscriptionExpiresAt", now] }, DAY_MS],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    );
+  }
+
   await db.collection("app_settings").updateOne(
     { _id: SETTINGS_ID as any },
     {
@@ -56,10 +85,7 @@ export async function POST(req: NextRequest) {
     { upsert: true },
   );
 
-  return NextResponse.json({
-    success: true,
-    endDate,
-  });
+  return NextResponse.json({ success: true, endDate });
 }
 
 export async function DELETE() {
@@ -69,6 +95,23 @@ export async function DELETE() {
 
   await connectDB();
   const db = getDb();
+
+  const now = new Date();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  await db.collection("users").updateMany(
+    { reservedDaysAfterPromo: { $gt: 0 } },
+    [
+      {
+        $set: {
+          subscriptionExpiresAt: {
+            $add: [now, { $multiply: ["$reservedDaysAfterPromo", DAY_MS] }],
+          },
+        },
+      },
+      { $unset: "reservedDaysAfterPromo" },
+    ],
+  );
 
   await db
     .collection("app_settings")
