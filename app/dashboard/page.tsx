@@ -97,8 +97,8 @@ export default function DashboardPage() {
               />
               <StatCard
                 title="Total Revenue"
-                value={`${Number(String(data?.revenue?.total ?? 0).replace(/0$/, "")).toLocaleString()}`}
-                sub={`${data?.revenue?.totalCount ?? 0} purchases · ${Number(String(data?.revenue?.total ?? 0).replace(/0$/, "")).toLocaleString()} today`}
+                value={`${Number(data?.revenue?.total ?? 0).toLocaleString()}`}
+                sub={`${data?.revenue?.totalCount ?? 0} purchases · ${Number(data?.revenue?.todayTotal ?? 0).toLocaleString()} today`}
                 icon={<DollarSign size={20} />}
                 color="green"
               />
