@@ -110,7 +110,7 @@ export default function DashboardPage() {
                 color="red"
               />
 
-              {/* ── کارت پیام‌ها — کلیک‌پذیر ── */}
+              {/* ── Messages── */}
               <button
                 onClick={() => setShowMessages(true)}
                 className="text-left relative rounded-2xl border bg-gradient-to-br p-4 sm:p-5 transition-all duration-200 from-amber-500/10 to-transparent border-amber-500/20 hover:border-amber-500/40 cursor-pointer"
