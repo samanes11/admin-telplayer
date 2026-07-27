@@ -96,8 +96,48 @@ export async function GET(req: NextRequest) {
       {
         $addFields: {
           songsCount: { $size: { $ifNull: ["$songIds", []] } },
+          _memberObjIds: {
+            $map: {
+              input: { $ifNull: ["$userIds", []] },
+              as: "uid",
+              in: {
+                $cond: {
+                  if: {
+                    $regexMatch: { input: "$$uid", regex: /^[a-f\d]{24}$/i },
+                  },
+                  then: { $toObjectId: "$$uid" },
+                  else: null,
+                },
+              },
+            },
+          },
         },
       },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_memberObjIds",
+          foreignField: "_id",
+          as: "_members",
+        },
+      },
+      {
+        $addFields: {
+          members: {
+            $map: {
+              input: "$_members",
+              as: "m",
+              in: {
+                _id: { $toString: "$$m._id" },
+                name: "$$m.name",
+                telegramUsername: "$$m.telegramUsername",
+                isOwner: { $eq: [{ $toString: "$$m._id" }, "$ownerId"] },
+              },
+            },
+          },
+        },
+      },
+      { $project: { _memberObjIds: 0, _members: 0 } },
     ])
     .toArray();
 

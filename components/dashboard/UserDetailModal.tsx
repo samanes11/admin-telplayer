@@ -41,11 +41,21 @@ interface AdminChannel {
   songsCount?: number;
 }
 
+interface AdminPlaylistMember {
+  _id: string;
+  name?: string;
+  telegramUsername?: string;
+  isOwner: boolean;
+}
+
 interface AdminPlaylist {
   _id: string;
   name: string;
   songsCount: number;
   updatedAt?: string;
+  ownerId?: string;
+  userIds?: string[];
+  members?: AdminPlaylistMember[];
 }
 
 interface AdminSong {
@@ -340,30 +350,50 @@ export default function UserDetailModal({
                 </div>
               ) : (
                 <div className="space-y-2 pb-2">
-                  {playlists.map((pl) => (
-                    <button
-                      key={pl._id}
-                      onClick={() => setSelectedPlaylist(pl)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-900 transition-colors text-left"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-700/60 to-purple-900 flex items-center justify-center shrink-0">
-                        <ListMusic size={16} className="text-pink-300" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
-                          {pl.name}
-                        </p>
-                      </div>
-                      <span className="text-[10px] text-zinc-600 font-mono flex items-center gap-1 shrink-0">
-                        <Music2 size={9} />
-                        {pl.songsCount.toLocaleString()}
-                      </span>
-                      <ChevronRight
-                        size={16}
-                        className="text-zinc-600 shrink-0"
-                      />
-                    </button>
-                  ))}
+                  {playlists.map((pl) => {
+                    const isCollab = (pl.members?.length ?? 0) > 1;
+                    return (
+                      <button
+                        key={pl._id}
+                        onClick={() => setSelectedPlaylist(pl)}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 hover:bg-zinc-900 transition-colors text-left"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-700/60 to-purple-900 flex items-center justify-center shrink-0">
+                          <ListMusic size={16} className="text-pink-300" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">
+                            {pl.name}
+                          </p>
+                          {isCollab && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {pl.members!.map((m) => (
+                                <span
+                                  key={m._id}
+                                  className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                                    m.isOwner
+                                      ? "bg-amber-950/50 text-amber-400 border border-amber-900/50"
+                                      : "bg-zinc-800 text-zinc-400"
+                                  }`}
+                                >
+                                  {m.isOwner ? "★ " : ""}
+                                  {m.name || m.telegramUsername || m._id.slice(-6)}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-zinc-600 font-mono flex items-center gap-1 shrink-0">
+                          <Music2 size={9} />
+                          {pl.songsCount.toLocaleString()}
+                        </span>
+                        <ChevronRight
+                          size={16}
+                          className="text-zinc-600 shrink-0"
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
               ))}
 
