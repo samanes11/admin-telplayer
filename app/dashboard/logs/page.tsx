@@ -60,6 +60,8 @@ function statusClass(code?: number) {
   return "text-zinc-500";
 }
 
+const latestIdRef = useRef<string | null>(null);
+
 const methodClass: Record<string, string> = {
   GET: "text-sky-400 bg-sky-500/10 border-sky-500/30",
   POST: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
@@ -92,6 +94,9 @@ export default function LogsPage() {
       const res = await fetch(`/api/admin/logs?${params}`);
       const data = await res.json();
       setLogs(data.data || []);
+      if (p === 1 && (data.data || []).length > 0) {
+        latestIdRef.current = data.data[0]._id;
+      }
       setTotal(data.total || 0);
       setTotalPages(data.totalPages || 1);
       setLoading(false);
@@ -120,12 +125,33 @@ export default function LogsPage() {
   }, [live, page, search, level, load]);
 
   async function clearLogs() {
-    if (!confirm("همه لاگ‌ها پاک شوند؟")) return;
+    if (!confirm("OK?")) return;
     setClearing(true);
     await fetch("/api/admin/logs", { method: "DELETE" });
     setClearing(false);
     load(1, search, level);
   }
+
+  const pollNewLogs = useCallback(async () => {
+    if (page !== 1) return;
+    if (!latestIdRef.current) return load(1, search, level);
+
+    const params = new URLSearchParams({
+      afterId: latestIdRef.current,
+      search,
+      level,
+    });
+    try {
+      const res = await fetch(`/api/admin/logs?${params}`);
+      const data = await res.json();
+      const newOnes: LogEntry[] = data.data || [];
+      if (newOnes.length === 0) return;
+
+      setLogs((prev) => [...newOnes].reverse().concat(prev).slice(0, 500));
+      setTotal((t) => t + newOnes.length);
+      latestIdRef.current = newOnes[newOnes.length - 1]._id;
+    } catch {}
+  }, [page, search, level]);
 
   function userLabel(meta?: LogEntry["meta"]) {
     if (!meta) return "—";
@@ -197,21 +223,38 @@ export default function LogsPage() {
                 <TableHead>Time</TableHead>
                 <TableHead>Level</TableHead>
                 <TableHead>Method</TableHead>
-                <TableHead>Path</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="pr-1 sm:pr-2">Path</TableHead>
+                <TableHead className="pl-1 sm:pl-2">Status</TableHead>
                 <TableHead>User</TableHead>
                 <TableHead>Message</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
+              jsx
               {loading ? (
                 Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                    ))}
+                    <TableCell>
+                      <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-14 rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-12 rounded-md" />
+                    </TableCell>
+                    <TableCell className="pr-1 sm:pr-2">
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell className="pl-1 sm:pl-2">
+                      <Skeleton className="h-4 w-8" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full max-w-md" />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : logs.length === 0 ? (
@@ -253,12 +296,12 @@ export default function LogsPage() {
                           <span className="text-xs text-zinc-600">—</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="pr-1 sm:pr-2">
                         <span className="text-xs font-mono text-zinc-500">
                           {log.meta?.path || "—"}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="pl-1 sm:pl-2">
                         <span
                           className={`text-xs font-mono font-bold ${statusClass(log.meta?.statusCode)}`}
                         >

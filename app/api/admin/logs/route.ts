@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB, getDb } from "@/lib/db";
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -21,7 +22,24 @@ export async function GET(req: NextRequest) {
   const query: Record<string, any> = {};
   if (level) query.level = level;
   if (search) query.message = { $regex: search, $options: "i" };
+  
+  const afterId = searchParams.get("afterId") || "";
 
+  if (afterId) {
+    let objId: mongoose.Types.ObjectId;
+    try {
+      objId = new mongoose.Types.ObjectId(afterId);
+    } catch {
+      return NextResponse.json({ error: "Invalid afterId" }, { status: 400 });
+    }
+    const newer = await db
+      .collection("logs")
+      .find({ ...query, _id: { $gt: objId } })
+      .sort({ _id: 1 })
+      .limit(200)
+      .toArray();
+    return NextResponse.json({ data: newer });
+  }
   const [logs, total] = await Promise.all([
     db
       .collection("logs")
