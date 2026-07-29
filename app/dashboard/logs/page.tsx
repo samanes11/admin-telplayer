@@ -187,7 +187,6 @@ export default function LogsPage() {
             </Select>
             <Button variant="outline" size="sm" onClick={() => setLive((l) => !l)}>
               {live ? <Pause size={14} /> : <Play size={14} />}
-              {live ? "Live" : "Paused"}
             </Button>
             <Button variant="outline" size="sm" onClick={() => load(page, search, level)}>
               <RefreshCw size={14} />
