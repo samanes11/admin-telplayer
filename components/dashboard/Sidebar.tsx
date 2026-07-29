@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, BarChart3, LucideBoxes } from "lucide-react";
+import { LayoutDashboard, Users, BarChart3, LucideBoxes, ScrollText } from "lucide-react";
 
 const nav = [
   {
@@ -24,11 +24,17 @@ const nav = [
     shortLabel: "Tools",
     icon: LucideBoxes,
   },
-  {
+ {
     href: "/dashboard/analytics",
     label: "Analytics",
     shortLabel: "Stats",
     icon: BarChart3,
+  },
+  {
+    href: "/dashboard/logs",
+    label: "Logs",
+    shortLabel: "Logs",
+    icon: ScrollText,
   },
 ];
 
