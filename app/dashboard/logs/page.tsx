@@ -126,14 +126,17 @@ export default function LogsPage() {
   const [clearing, setClearing] = useState(false);
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [newIds, setNewIds] = useState<string[]>([]);
 
   const latestIdRef = useRef<string | null>(null);
 
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
   const load = useCallback(
-    async (p = 1, q = search, lv = level) => {
-      setLoading(true);
+    async (p = 1, q = search, lv = level, showLoading = true) => {
+      if (showLoading) {
+        setLoading(true);
+      }
 
       const params = new URLSearchParams({
         page: String(p),
@@ -156,7 +159,9 @@ export default function LogsPage() {
 
       setTotalPages(data.totalPages || 1);
 
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     },
     [search, level],
   );
@@ -178,8 +183,42 @@ export default function LogsPage() {
   useEffect(() => {
     if (!live) return;
 
-    pollRef.current = setInterval(() => {
-      load(page, search, level);
+    pollRef.current = setInterval(async () => {
+      const params = new URLSearchParams({
+        page: "1",
+        limit: "50",
+        search,
+        level,
+      });
+
+      const res = await fetch(`/api/admin/logs?${params}`);
+      const data = await res.json();
+
+      const newLogs = data.data || [];
+
+      if (!newLogs.length) return;
+
+      if (newLogs[0]._id === latestIdRef.current) return;
+
+      latestIdRef.current = newLogs[0]._id;
+
+      setLogs((prev) => {
+        const oldIds = new Set(prev.map((x) => x._id));
+
+        const incoming = newLogs.filter((x) => !oldIds.has(x._id));
+
+        if (incoming.length) {
+          setNewIds(incoming.map((x) => x._id));
+
+          setTimeout(() => {
+            setNewIds([]);
+          }, 500);
+        }
+
+        return [...incoming, ...prev].slice(0, 50);
+      });
+
+      setTotal(data.total || 0);
     }, 4000);
 
     return () => {
@@ -332,7 +371,6 @@ export default function LogsPage() {
 
             <Button variant="outline" onClick={() => setLive((l) => !l)}>
               {live ? <Pause size={15} /> : <Play size={15} />}
-
             </Button>
 
             <Button variant="outline" onClick={() => load(page, search, level)}>
@@ -386,15 +424,19 @@ export default function LogsPage() {
 
               const open = expanded[log._id];
 
+              const isNew = newIds.includes(log._id);
+
               return (
                 <Card
                   key={log._id}
-                  className={`${style.card}
-                    border-zinc-800
-                    hover:border-zinc-700
+                  className={`
+                    ${style.card}
+                    ${isNew ? "new-log" : ""}
+                   border-zinc-800
+                   hover:border-zinc-700
                     hover:shadow-xl
-                    transition-all
-                    duration-200`}
+                   transition-all
+                   duration-20`}
                 >
                   <div className="p-5">
                     {/* ========================= */}
