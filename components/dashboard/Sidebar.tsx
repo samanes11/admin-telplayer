@@ -3,9 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, BarChart3, LucideBoxes, ScrollText } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  BarChart3,
+  LucideBoxes,
+  ScrollText,
+} from "lucide-react";
 
 const nav = [
+  {
+    href: "/dashboard",
+    label: "Overview",
+    shortLabel: "Home",
+    icon: LayoutDashboard,
+  },
   {
     href: "/dashboard/default-channels",
     label: "Tools",
@@ -17,12 +29,6 @@ const nav = [
     label: "Users",
     shortLabel: "Users",
     icon: Users,
-  },
-  {
-    href: "/dashboard",
-    label: "Overview",
-    shortLabel: "Home",
-    icon: LayoutDashboard,
   },
   {
     href: "/dashboard/analytics",
@@ -41,8 +47,9 @@ const nav = [
 export default function Sidebar() {
   const path = usePathname();
 
-return (
-    <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-24px)] max-w-sm sm:w-auto sm:px-0">
+  return (
+    <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-24px)] max-w-sm sm:w-auto sm:max-w-none sm:px-0">
+      {" "}
       <div className="flex items-center justify-between gap-0 rounded-full border border-zinc-800/60 bg-zinc-950/90 backdrop-blur-xl px-1 py-1.5 shadow-2xl shadow-black/50 overflow-hidden">
         {nav.map(({ href, label, shortLabel, icon: Icon }) => {
           const active =
@@ -52,15 +59,18 @@ return (
               key={href}
               href={href}
               className={cn(
-                "flex flex-1 min-w-0 flex-col items-center gap-0.5 px-1.5 sm:px-5 py-1.5 rounded-full text-[10px] sm:text-[11px] font-medium transition-all duration-200",
+                "flex flex-1 min-w-0 flex-col items-center gap-0.5 px-1 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-medium transition-all duration-200",
                 active
                   ? "bg-red-500/15 text-red-400"
                   : "text-zinc-500 hover:text-zinc-200",
               )}
             >
               <Icon size={17} className="shrink-0" />
-              <span className="sm:hidden truncate max-w-full">{shortLabel}</span>
-              <span className="hidden sm:block truncate max-w-full">{label}</span>
+              <span className="sm:hidden whitespace-nowrap">{shortLabel}</span>
+              <span className="hidden sm:block whitespace-nowrap">{label}</span>
+              <span className="hidden sm:block truncate max-w-full">
+                {label}
+              </span>
             </Link>
           );
         })}
