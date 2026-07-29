@@ -3,21 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  BarChart3,
-  LucideBoxes,
-  ScrollText,
-} from "lucide-react";
+import { LayoutDashboard, Users, BarChart3, LucideBoxes, ScrollText } from "lucide-react";
 
 const nav = [
-  {
-    href: "/dashboard",
-    label: "Overview",
-    shortLabel: "Home",
-    icon: LayoutDashboard,
-  },
   {
     href: "/dashboard/default-channels",
     label: "Tools",
@@ -29,6 +17,12 @@ const nav = [
     label: "Users",
     shortLabel: "Users",
     icon: Users,
+  },
+  {
+    href: "/dashboard",
+    label: "Overview",
+    shortLabel: "Home",
+    icon: LayoutDashboard,
   },
   {
     href: "/dashboard/analytics",
@@ -47,9 +41,8 @@ const nav = [
 export default function Sidebar() {
   const path = usePathname();
 
-  return (
+return (
     <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-24px)] max-w-sm sm:w-auto sm:max-w-none sm:px-0">
-      {" "}
       <div className="flex items-center justify-between gap-0 rounded-full border border-zinc-800/60 bg-zinc-950/90 backdrop-blur-xl px-1 py-1.5 shadow-2xl shadow-black/50 overflow-hidden">
         {nav.map(({ href, label, shortLabel, icon: Icon }) => {
           const active =
@@ -68,9 +61,6 @@ export default function Sidebar() {
               <Icon size={17} className="shrink-0" />
               <span className="sm:hidden whitespace-nowrap">{shortLabel}</span>
               <span className="hidden sm:block whitespace-nowrap">{label}</span>
-              <span className="hidden sm:block truncate max-w-full">
-                {label}
-              </span>
             </Link>
           );
         })}
