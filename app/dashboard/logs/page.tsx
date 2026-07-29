@@ -51,6 +51,23 @@ const levelBadge: Record<string, "success" | "warning" | "error" | "outline"> =
     error: "error",
   };
 
+function statusClass(code?: number) {
+  if (!code) return "text-zinc-500";
+  if (code >= 500) return "text-red-400";
+  if (code >= 400) return "text-amber-400";
+  if (code >= 300) return "text-sky-400";
+  if (code >= 200) return "text-emerald-400";
+  return "text-zinc-500";
+}
+
+const methodClass: Record<string, string> = {
+  GET: "text-sky-400 bg-sky-500/10 border-sky-500/30",
+  POST: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+  PUT: "text-amber-400 bg-amber-500/10 border-amber-500/30",
+  PATCH: "text-purple-400 bg-purple-500/10 border-purple-500/30",
+  DELETE: "text-red-400 bg-red-500/10 border-red-500/30",
+};
+
 export default function LogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [total, setTotal] = useState(0);
@@ -179,16 +196,18 @@ export default function LogsPage() {
               <TableRow>
                 <TableHead>Time</TableHead>
                 <TableHead>Level</TableHead>
-                <TableHead>Message</TableHead>
-                <TableHead>User</TableHead>
+                <TableHead>Method</TableHead>
                 <TableHead>Path</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>User</TableHead>
+                <TableHead>Message</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-5 w-full" />
                       </TableCell>
@@ -198,7 +217,7 @@ export default function LogsPage() {
               ) : logs.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={7}
                     className="text-center py-16 text-zinc-600"
                   >
                     <ScrollText size={32} className="mx-auto mb-3 opacity-30" />
@@ -206,74 +225,68 @@ export default function LogsPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                logs.map((log) => (
-                  <TableRow key={log._id}>
-                    <TableCell>
-                      <span className="text-xs text-zinc-500 font-mono">
-                        {timeAgo(log.createdAt)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={levelBadge[log.level] || "outline"}>
-                        {log.level}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs text-zinc-300 break-all">
-                        {log.message}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs font-mono text-zinc-400">
-                        {userLabel(log.meta)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs font-mono text-zinc-500">
-                        {log.meta?.method ? `${log.meta.method} ` : ""}
-                        {log.meta?.path || "—"}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))
+                logs.map((log) => {
+                  const user = userLabel(log.meta);
+                  return (
+                    <TableRow key={log._id}>
+                      <TableCell>
+                        <span className="text-xs text-zinc-500 font-mono">
+                          {timeAgo(log.createdAt)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={levelBadge[log.level] || "outline"}>
+                          {log.level}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {log.meta?.method ? (
+                          <span
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold border ${
+                              methodClass[log.meta.method] ||
+                              "text-zinc-400 bg-zinc-500/10 border-zinc-500/30"
+                            }`}
+                          >
+                            {log.meta.method}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-zinc-600">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs font-mono text-zinc-500">
+                          {log.meta?.path || "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`text-xs font-mono font-bold ${statusClass(log.meta?.statusCode)}`}
+                        >
+                          {log.meta?.statusCode ?? "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={
+                            user === "—"
+                              ? "text-xs font-mono text-zinc-600"
+                              : "text-xs font-mono text-[#229ED9] font-semibold"
+                          }
+                        >
+                          {user}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs text-zinc-300 break-all">
+                          {log.message}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
-          </Table>
-
-          <div className="flex items-center justify-between px-4 py-3 border-t border-zinc-800">
-            <p className="text-xs text-zinc-500 font-mono">
-              {total} logs total
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page <= 1}
-                onClick={() => {
-                  const np = page - 1;
-                  setPage(np);
-                  load(np, search, level);
-                }}
-              >
-                <ChevronLeft size={14} />
-              </Button>
-              <span className="text-xs font-mono text-zinc-400 px-2">
-                {page} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                disabled={page >= totalPages}
-                onClick={() => {
-                  const np = page + 1;
-                  setPage(np);
-                  load(np, search, level);
-                }}
-              >
-                <ChevronRight size={14} />
-              </Button>
-            </div>
-          </div>
+          </Table>{" "}
         </Card>
       </div>
     </div>
