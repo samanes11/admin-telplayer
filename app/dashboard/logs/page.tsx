@@ -23,6 +23,7 @@ import {
   Info,
   ScrollText,
 } from "lucide-react";
+import HealthPanel from "@/components/dashboard/HealthPanel";
 
 interface LogEntry {
   _id: string;
@@ -202,6 +203,7 @@ export default function LogsPage() {
       />
 
       <div className="p-6 space-y-4">
+        <HealthPanel />
         <Card className="border-zinc-800 bg-zinc-900/60">
           <div className="p-4 flex flex-wrap gap-3 items-center">
             <div className="flex-1 min-w-[240px]">

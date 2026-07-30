@@ -178,7 +178,7 @@ function ForwarderPanel() {
         }),
       });
       const d = await res.json();
-      if (!res.ok || !d.success) throw new Error(d.msg || "Failed to start");
+      if (!res.ok || !d.success) throw new Error(d.msg || d.error || "Failed to start");
       setActiveJobId(d.jobId);
       setShowLogs(true);
     } catch (e: any) {

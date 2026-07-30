@@ -25,6 +25,16 @@ async function checkAdmin(req: NextRequest) {
 // Matches:
 //   /api/admin/forwarder/jobs
 //   /api/admin/forwarder/status/:jobId
+async function safeJson(res: Response) {
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { success: false, error: "Invalid response from backend", raw: text.slice(0, 500) };
+  }
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { action: string[] } }
@@ -33,7 +43,7 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const action = params.action; // e.g. ["jobs"] or ["status", "abc123"]
+  const action = params.action;
   let backendPath = "";
 
   if (action[0] === "jobs") {
@@ -44,15 +54,24 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const res = await fetch(backendPath, { headers: adminHeaders() });
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  try {
+    const res = await fetch(backendPath, {
+      headers: adminHeaders(),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await safeJson(res);
+    if (data === null) {
+      return NextResponse.json({ success: false, error: "Empty response from backend" }, { status: 502 });
+    }
+    return NextResponse.json(data, { status: res.status });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err?.message || "Failed to reach backend" },
+      { status: 502 },
+    );
+  }
 }
 
-// ── POST handler ───────────────────────────────────────────────
-// Matches:
-//   /api/admin/forwarder/start
-//   /api/admin/forwarder/cancel/:jobId
 export async function POST(
   req: NextRequest,
   { params }: { params: { action: string[] } }
@@ -74,11 +93,22 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const res = await fetch(backendPath, {
-    method: "POST",
-    headers: adminHeaders(),
-    ...(body ? { body } : {}),
-  });
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  try {
+    const res = await fetch(backendPath, {
+      method: "POST",
+      headers: adminHeaders(),
+      ...(body ? { body } : {}),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await safeJson(res);
+    if (data === null) {
+      return NextResponse.json({ success: false, error: "Empty response from backend" }, { status: 502 });
+    }
+    return NextResponse.json(data, { status: res.status });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err?.message || "Failed to reach backend" },
+      { status: 502 },
+    );
+  }
 }
