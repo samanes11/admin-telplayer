@@ -19,10 +19,40 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search") || "";
   const skip = (page - 1) * limit;
 
+  const userIdFilter = searchParams.get("userId") || "";
+
   const query: Record<string, any> = {};
   if (level) query.level = level;
-  if (search) query.message = { $regex: search, $options: "i" };
-  
+
+  const orClauses: Record<string, any>[] = [];
+
+  if (search) {
+    orClauses.push({
+      $or: [
+        { message: { $regex: search, $options: "i" } },
+        { "meta.telegramUsername": { $regex: search, $options: "i" } },
+        { "meta.telegramId": { $regex: search, $options: "i" } },
+        { "meta.path": { $regex: search, $options: "i" } },
+      ],
+    });
+  }
+
+  if (userIdFilter) {
+    orClauses.push({
+      $or: [
+        { "meta.telegramId": userIdFilter },
+        { "meta.telegramUsername": userIdFilter },
+        { "meta.userId": userIdFilter },
+      ],
+    });
+  }
+
+  if (orClauses.length === 1) {
+    Object.assign(query, orClauses[0]);
+  } else if (orClauses.length > 1) {
+    query.$and = orClauses;
+  }
+
   const afterId = searchParams.get("afterId") || "";
 
   if (afterId) {
