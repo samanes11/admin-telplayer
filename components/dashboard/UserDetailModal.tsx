@@ -21,6 +21,7 @@ import {
   CreditCard,
   LogOut,
   Smartphone,
+  ScrollText,
 } from "lucide-react";
 import { formatDuration, formatDate } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ interface AdminUser {
   _id: string;
   name?: string;
   telegramUsername?: string;
+  telegramId?: string;
   subscriptionPlan?: string | null;
   subscriptionExpiresAt?: string | null;
 }
@@ -76,7 +78,7 @@ interface AdminSession {
   lastActive?: string;
 }
 
-type Tab = "channels" | "playlists" | "payments" | "sessions";
+type Tab = "channels" | "playlists" | "payments" | "sessions" | "logs";
 
 const statusConfig: Record<
   string,
@@ -99,6 +101,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "playlists", label: "Playlists", icon: <ListMusic size={13} /> },
   { id: "payments", label: "Payments", icon: <CreditCard size={13} /> },
   { id: "sessions", label: "Sessions", icon: <Smartphone size={13} /> },
+  { id: "logs", label: "Logs", icon: <ScrollText size={13} /> },
 ];
 
 export default function UserDetailModal({
@@ -135,6 +138,10 @@ export default function UserDetailModal({
   const [sessions, setSessions] = useState<AdminSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [loggingOutId, setLoggingOutId] = useState<string | null>(null);
+
+  // ── Logs ────────────────────────────────────────────────
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
 
   // Reset transient state whenever a new user is opened
   useEffect(() => {
@@ -201,6 +208,19 @@ export default function UserDetailModal({
       .then((r) => r.json())
       .then((d) => setPlaylists(d.data || []))
       .finally(() => setLoadingPlaylists(false));
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setLogs([]);
+      return;
+    }
+    setLoadingLogs(true);
+    const uid = user.telegramId || user._id;
+    fetch(`/api/admin/logs?userId=${uid}&limit=50`)
+      .then((r) => r.json())
+      .then((d) => setLogs(d.data || []))
+      .finally(() => setLoadingLogs(false));
   }, [user]);
 
   useEffect(() => {
@@ -377,7 +397,9 @@ export default function UserDetailModal({
                                   }`}
                                 >
                                   {m.isOwner ? "★ " : ""}
-                                  {m.name || m.telegramUsername || m._id.slice(-6)}
+                                  {m.name ||
+                                    m.telegramUsername ||
+                                    m._id.slice(-6)}
                                 </span>
                               ))}
                             </div>
@@ -506,6 +528,50 @@ export default function UserDetailModal({
                             {loggingOutId === s._id ? "..." : "Logout"}
                           </button>
                         )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            {tab === "logs" &&
+              (loadingLogs ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 rounded-xl" />
+                  ))}
+                </div>
+              ) : logs.length === 0 ? (
+                <div className="text-center py-12 text-zinc-600">
+                  <ScrollText size={32} className="mx-auto mb-3 opacity-30" />
+                  <p className="text-sm">No logs for this user</p>
+                </div>
+              ) : (
+                <div className="space-y-1.5 pb-2">
+                  {logs.map((log) => (
+                    <div
+                      key={log._id}
+                      className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800"
+                    >
+                      <Badge
+                        variant={
+                          log.level === "error"
+                            ? "error"
+                            : log.level === "warn"
+                              ? "warning"
+                              : "outline"
+                        }
+                        className="mt-0.5 shrink-0"
+                      >
+                        {log.level}
+                      </Badge>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-zinc-300 break-words">
+                          {log.meta?.path || log.message}
+                        </p>
+                        <p className="text-[10px] text-zinc-600 font-mono mt-1">
+                          {log.meta?.method ? `${log.meta.method} · ` : ""}
+                          {formatDate(log.createdAt)}
+                        </p>
                       </div>
                     </div>
                   ))}
