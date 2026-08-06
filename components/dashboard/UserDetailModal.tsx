@@ -139,7 +139,7 @@ export default function UserDetailModal({
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [loggingOutId, setLoggingOutId] = useState<string | null>(null);
 
-  // ── Logs ────────────────────────────────────────────────
+  // ── Logs ────────────────────────────────────────────────────
   const [logs, setLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
@@ -216,8 +216,7 @@ export default function UserDetailModal({
       return;
     }
     setLoadingLogs(true);
-    const uid = user.telegramId || user._id;
-    fetch(`/api/admin/logs?userId=${uid}&limit=50`)
+    fetch(`/api/admin/logs?userId=${user._id}&limit=50`)
       .then((r) => r.json())
       .then((d) => setLogs(d.data || []))
       .finally(() => setLoadingLogs(false));
@@ -533,6 +532,7 @@ export default function UserDetailModal({
                   ))}
                 </div>
               ))}
+            {/* ── Logs tab ─────────────────────────────────────── */}
             {tab === "logs" &&
               (loadingLogs ? (
                 <div className="space-y-2">
@@ -546,33 +546,36 @@ export default function UserDetailModal({
                   <p className="text-sm">No logs for this user</p>
                 </div>
               ) : (
-                <div className="space-y-1.5 pb-2">
+                <div className="space-y-2 pb-2">
                   {logs.map((log) => (
                     <div
                       key={log._id}
-                      className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800"
+                      className="p-3 rounded-xl border border-zinc-800 bg-zinc-900/60"
                     >
-                      <Badge
-                        variant={
-                          log.level === "error"
-                            ? "error"
-                            : log.level === "warn"
-                              ? "warning"
-                              : "outline"
-                        }
-                        className="mt-0.5 shrink-0"
-                      >
-                        {log.level}
-                      </Badge>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-zinc-300 break-words">
-                          {log.meta?.path || log.message}
-                        </p>
-                        <p className="text-[10px] text-zinc-600 font-mono mt-1">
-                          {log.meta?.method ? `${log.meta.method} · ` : ""}
-                          {formatDate(log.createdAt)}
-                        </p>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <Badge
+                          variant={
+                            log.level === "error"
+                              ? "error"
+                              : log.level === "warn"
+                                ? "warning"
+                                : "outline"
+                          }
+                        >
+                          {log.level?.toUpperCase()}
+                        </Badge>
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          {new Date(log.createdAt).toLocaleString()}
+                        </span>
                       </div>
+                      <p className="text-sm text-zinc-200 break-words">
+                        {log.message}
+                      </p>
+                      {log.meta && (
+                        <pre className="mt-2 rounded-lg bg-black/40 border border-zinc-800 p-2 overflow-auto text-[10px] leading-5 font-mono text-zinc-400">
+                          {JSON.stringify(log.meta, null, 2)}
+                        </pre>
+                      )}
                     </div>
                   ))}
                 </div>
